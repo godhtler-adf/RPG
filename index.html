@@ -1,0 +1,3003 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>오픈월드 대장장이 RPG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #090d16;
+            color: #f8fafc;
+            user-select: none;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        /* 강화 단계별 무기 오라(Glow) 및 색상 스타일 */
+        .tier-0 { filter: drop-shadow(0 0 5px rgba(148, 163, 184, 0.5)); }
+        .tier-green { filter: drop-shadow(0 0 14px rgba(34, 197, 94, 0.9)) drop-shadow(0 0 26px rgba(16, 185, 129, 0.45)); }
+        .tier-blue { filter: drop-shadow(0 0 18px rgba(59, 130, 246, 0.95)) drop-shadow(0 0 34px rgba(56, 189, 248, 0.55)); }
+        .tier-purple { filter: drop-shadow(0 0 22px rgba(168, 85, 247, 1)) drop-shadow(0 0 42px rgba(217, 70, 239, 0.65)); }
+        .tier-red { filter: drop-shadow(0 0 28px rgba(239, 68, 68, 1)) drop-shadow(0 0 50px rgba(251, 191, 36, 0.65)); animation: pulse-red 1.3s infinite; }
+        .tier-silver { filter: drop-shadow(0 0 26px rgba(226, 232, 240, 0.95)) drop-shadow(0 0 48px rgba(148, 163, 184, 0.8)); }
+        .tier-bright-silver { filter: drop-shadow(0 0 32px rgba(255, 255, 255, 1)) drop-shadow(0 0 56px rgba(203, 213, 225, 0.95)); animation: pulse-silver 1.2s infinite; }
+        .tier-rainbow { animation: pulse-rainbow 2.4s linear infinite; }
+        .tier-void { animation: pulse-void 1.5s ease-in-out infinite; }
+        .tier-celestial { animation: pulse-celestial 1.4s ease-in-out infinite; }
+        .tier-genesis { animation: pulse-genesis 1.2s ease-in-out infinite; }
+
+        @keyframes pulse-red {
+            0%, 100% { filter: drop-shadow(0 0 22px rgba(239, 68, 68, 0.95)) drop-shadow(0 0 40px rgba(249, 115, 22, 0.6)); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 38px rgba(239, 68, 68, 1)) drop-shadow(0 0 60px rgba(251, 191, 36, 0.85)); transform: scale(1.06); }
+        }
+
+        @keyframes pulse-silver {
+            0%, 100% { filter: drop-shadow(0 0 26px rgba(241, 245, 249, 0.95)) drop-shadow(0 0 46px rgba(203, 213, 225, 0.75)); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 42px rgba(255, 255, 255, 1)) drop-shadow(0 0 68px rgba(226, 232, 240, 0.95)); transform: scale(1.05); }
+        }
+
+        @keyframes pulse-rainbow {
+            0%   { filter: drop-shadow(0 0 30px #ef4444) drop-shadow(0 0 55px #f59e0b); transform: scale(1.02); }
+            20%  { filter: drop-shadow(0 0 32px #eab308) drop-shadow(0 0 58px #22c55e); transform: scale(1.06); }
+            40%  { filter: drop-shadow(0 0 32px #22c55e) drop-shadow(0 0 58px #06b6d4); transform: scale(1.03); }
+            60%  { filter: drop-shadow(0 0 32px #3b82f6) drop-shadow(0 0 58px #a855f7); transform: scale(1.07); }
+            80%  { filter: drop-shadow(0 0 32px #d946ef) drop-shadow(0 0 58px #ec4899); transform: scale(1.03); }
+            100% { filter: drop-shadow(0 0 30px #ef4444) drop-shadow(0 0 55px #f59e0b); transform: scale(1.02); }
+        }
+
+        @keyframes pulse-void {
+            0%, 100% { filter: drop-shadow(0 0 28px #1e1b4b) drop-shadow(0 0 52px #7c3aed) drop-shadow(0 0 70px #000000); transform: scale(1.03); }
+            50% { filter: drop-shadow(0 0 42px #4c1d95) drop-shadow(0 0 68px #c084fc) drop-shadow(0 0 85px #090d16); transform: scale(1.09); }
+        }
+
+        @keyframes pulse-celestial {
+            0%, 100% { filter: drop-shadow(0 0 30px #06b6d4) drop-shadow(0 0 55px #facc15); transform: scale(1.04); }
+            50% { filter: drop-shadow(0 0 45px #22d3ee) drop-shadow(0 0 75px #fde047); transform: scale(1.1); }
+        }
+
+        @keyframes pulse-genesis {
+            0%, 100% { filter: drop-shadow(0 0 35px #f43f5e) drop-shadow(0 0 65px #38bdf8) drop-shadow(0 0 85px #fde047); transform: scale(1.05); }
+            50% { filter: drop-shadow(0 0 52px #fb7185) drop-shadow(0 0 85px #7dd3fc) drop-shadow(0 0 105px #ffffff); transform: scale(1.12); }
+        }
+
+        @keyframes spin-aura {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .aura-ring-spin {
+            transform-origin: 60px 60px;
+            animation: spin-aura 6s linear infinite;
+        }
+        .aura-ring-reverse {
+            transform-origin: 60px 60px;
+            animation: spin-aura 9s linear infinite reverse;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .shake-anim { animation: shake 0.4s ease-in-out; }
+
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    </style>
+</head>
+<body class="w-screen h-screen relative bg-slate-950">
+
+    <!-- 오픈월드 메인 캔버스 -->
+    <canvas id="world-canvas" class="block w-full h-full cursor-crosshair"></canvas>
+
+    <!-- 상단 HUD (캐릭터 상태바 & 메뉴 버튼) -->
+    <div class="absolute top-3 left-3 right-3 flex flex-wrap items-start justify-between gap-2 pointer-events-none">
+        
+        <!-- 좌측: 플레이어 HP / EXP / 스탯 패널 -->
+        <div class="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl p-3 shadow-2xl w-72 sm:w-80 pointer-events-auto">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <span class="bg-amber-500 text-slate-950 font-black px-2.5 py-0.5 rounded-lg text-xs sm:text-sm">
+                        Lv.<span id="hud-lv">1</span>
+                    </span>
+                    <span id="hud-zone" class="text-xs sm:text-sm font-bold text-emerald-400">🏡 시작의 마을</span>
+                </div>
+                <div class="text-xs sm:text-sm font-black text-amber-400">
+                    💰 <span id="hud-gold">500</span> G
+                </div>
+            </div>
+
+            <!-- HP 바 (실시간 감소 및 회복) -->
+            <div class="mb-1.5">
+                <div class="flex justify-between text-[11px] font-bold mb-0.5">
+                    <span class="text-rose-400">❤️ HP</span>
+                    <span><span id="hud-hp">100</span> / <span id="hud-max-hp">100</span></span>
+                </div>
+                <div class="w-full bg-slate-950 rounded-full h-3 border border-slate-700 overflow-hidden">
+                    <div id="hud-hp-bar" class="bg-gradient-to-r from-rose-600 to-red-500 h-full transition-all duration-150" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <!-- EXP 바 -->
+            <div class="mb-2">
+                <div class="flex justify-between text-[10px] font-bold text-slate-400 mb-0.5">
+                    <span>✨ EXP</span>
+                    <span><span id="hud-exp">0</span> / <span id="hud-max-exp">100</span></span>
+                </div>
+                <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800 overflow-hidden">
+                    <div id="hud-exp-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full transition-all duration-200" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- 장착 무기 & 공격력 요약 -->
+            <div class="flex items-center justify-between text-xs bg-slate-950/70 px-2.5 py-1.5 rounded-xl border border-slate-800">
+                <span id="hud-weapon-name" class="font-bold text-slate-200">+0 용사의 검</span>
+                <span class="font-black text-rose-400">⚔️ <span id="hud-atk">15</span></span>
+            </div>
+            <div class="mt-1.5 flex items-center justify-between text-[11px] px-1">
+                <span id="hud-world-badge" class="font-black text-cyan-400">🌍 1세계 (현세)</span>
+                <button id="hud-portal-btn" onclick="interactPortal()" class="hidden bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black px-2 py-0.5 rounded-md shadow animate-pulse">
+                    🌀 차원 이동
+                </button>
+            </div>
+        </div>
+
+        <!-- 우측: 대장간 / 확률표 / 포션 상점 버튼 -->
+        <div class="flex flex-col sm:flex-row gap-2 pointer-events-auto">
+            <button onclick="buyPotion()" class="bg-slate-900/90 hover:bg-slate-800 border border-rose-500/50 text-rose-300 font-bold px-3 py-2 rounded-xl shadow-lg text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95">
+                <span>🧪 포션 구매 (30G)</span>
+                <span class="bg-rose-950 text-rose-400 px-1.5 py-0.5 rounded text-xs font-black" id="hud-potion-btn-count">3개</span>
+            </button>
+            <button onclick="openStatModal()" class="bg-slate-900/90 hover:bg-slate-800 border border-emerald-500/50 text-emerald-300 font-bold px-3 py-2 rounded-xl shadow-lg text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95">
+                <span>💪 스탯 강화 (T)</span>
+            </button>
+            <button onclick="openForgeModal()" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-50 text-slate-950 font-black px-4 py-2 rounded-xl shadow-lg text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95">
+                <span>🔨 대장간 (E)</span>
+            </button>
+            <button onclick="openExtraForgeModal()" class="bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-black px-3.5 py-2 rounded-xl shadow-lg text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95 border border-cyan-300/40">
+                <span>🔮 추가강화소 (~60강)</span>
+            </button>
+            <button onclick="openProbModal()" class="bg-slate-900/90 hover:bg-slate-800 border border-slate-600 text-amber-300 font-bold px-3 py-2 rounded-xl shadow-lg text-xs sm:text-sm flex items-center gap-1 transition active:scale-95">
+                <span>📊 확률표</span>
+            </button>
+            <button onclick="openSettingsModal()" class="bg-slate-900/90 hover:bg-slate-800 border border-slate-500 text-slate-200 font-bold px-3 py-2 rounded-xl shadow-lg text-xs sm:text-sm flex items-center gap-1 transition active:scale-95">
+                <span>⚙️ 설정</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 미니맵 (우측 하단 또는 상단 아래) -->
+    <div id="minimap-panel" class="hidden sm:block absolute bottom-4 right-4 bg-slate-900/90 border border-slate-700 rounded-xl p-1.5 shadow-2xl pointer-events-none">
+        <canvas id="minimap-canvas" width="140" height="140" class="rounded-lg block"></canvas>
+        <div class="text-[10px] text-center text-slate-400 mt-1 font-bold">WASD 이동 | Space 공격 | Q 포션 | T 스탯</div>
+    </div>
+
+    <!-- 하단 중앙: 실시간 전투 알림 로그 -->
+    <div id="toast-container" class="absolute top-28 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none z-20"></div>
+
+    <!-- 모바일 / 마우스 터치 컨트롤러 (하단 좌측 & 우측) -->
+    <div class="absolute bottom-4 left-4 right-4 sm:right-44 flex items-end justify-between pointer-events-none z-10">
+        <!-- 가상 방향키 (D-Pad) -->
+        <div class="grid grid-cols-3 gap-1.5 w-32 h-32 pointer-events-auto opacity-80 hover:opacity-100">
+            <div></div>
+            <button id="btn-up" class="bg-slate-800/90 active:bg-amber-500 border border-slate-600 rounded-xl flex items-center justify-center text-lg font-bold">▲</button>
+            <div></div>
+            <button id="btn-left" class="bg-slate-800/90 active:bg-amber-500 border border-slate-600 rounded-xl flex items-center justify-center text-lg font-bold">◀</button>
+            <div class="bg-slate-900/60 rounded-xl border border-slate-700/50"></div>
+            <button id="btn-right" class="bg-slate-800/90 active:bg-amber-500 border border-slate-600 rounded-xl flex items-center justify-center text-lg font-bold">▶</button>
+            <div></div>
+            <button id="btn-down" class="bg-slate-800/90 active:bg-amber-500 border border-slate-600 rounded-xl flex items-center justify-center text-lg font-bold">▼</button>
+            <div></div>
+        </div>
+
+        <!-- 액션 버튼 (포션 / 공격) -->
+        <div class="flex items-center gap-3 pointer-events-auto">
+            <button onclick="usePotion()" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-rose-950/90 hover:bg-rose-900 active:scale-90 border-2 border-rose-500 flex flex-col items-center justify-center shadow-lg">
+                <span class="text-lg">🧪</span>
+                <span class="text-[10px] font-black text-rose-300" id="action-potion-count">3개 (Q)</span>
+            </button>
+            <button onclick="playerAttack()" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-amber-500 to-red-600 active:scale-90 border-2 border-amber-300 flex flex-col items-center justify-center shadow-xl text-slate-950">
+                <span class="text-2xl">⚔️</span>
+                <span class="text-[11px] font-black">공격</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================================================
+         대장간 모달 (무기 선택: 검/활/폴암 & 20강 강화)
+         ======================================================================== -->
+    <div id="forge-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-800 border border-slate-600 rounded-2xl w-full max-w-lg flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 bg-slate-900 border-b border-slate-700 flex items-center justify-between">
+                <h2 class="text-lg font-black text-amber-400 flex items-center gap-2">
+                    <span>🔨</span> 대장간 - 무기 제작 및 강화
+                </h2>
+                <button onclick="closeForgeModal()" class="text-slate-400 hover:text-white font-bold text-xl px-2">✕</button>
+            </div>
+
+            <div class="p-4 sm:p-5 space-y-4">
+                <!-- 무기 종류 선택 탭 (검 / 활 / 폴암) -->
+                <div class="grid grid-cols-3 gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-700">
+                    <button id="tab-sword" onclick="selectWeapon('sword')" class="py-2 rounded-lg font-bold text-xs sm:text-sm transition bg-amber-500 text-slate-900">
+                        🗡️ 검 (근접 베기)
+                    </button>
+                    <button id="tab-bow" onclick="selectWeapon('bow')" class="py-2 rounded-lg font-bold text-xs sm:text-sm transition text-slate-400 hover:text-white">
+                        🏹 활 (원거리)
+                    </button>
+                    <button id="tab-polearm" onclick="selectWeapon('polearm')" class="py-2 rounded-lg font-bold text-xs sm:text-sm transition text-slate-400 hover:text-white">
+                        🔱 폴암 (광역 회전)
+                    </button>
+                </div>
+
+                <!-- 강화 무기 쇼케이스 -->
+                <div id="weapon-showcase" class="bg-slate-900 border border-slate-700 rounded-xl p-4 flex flex-col items-center justify-center relative">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span id="weapon-tier-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-700 text-slate-300">
+                            일반 등급
+                        </span>
+                        <span id="weapon-level-badge" class="text-base font-black text-white">+0</span>
+                    </div>
+
+                    <!-- 무기 SVG 그래픽 -->
+                    <div id="weapon-svg-container" class="w-32 h-32 flex items-center justify-center my-1 transition-all duration-300 tier-0"></div>
+
+                    <h3 id="weapon-name" class="text-lg font-black text-slate-100">+0 용사의 검</h3>
+                    <p id="weapon-desc" class="text-xs text-slate-400 text-center mt-0.5">전방 부채꼴 범위 공격 (치명타 15%)</p>
+                    <div class="mt-2 text-xs font-bold text-emerald-400 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800">
+                        무기 공격력: +<span id="weapon-bonus-atk">10</span>
+                    </div>
+                </div>
+
+                <!-- 강화 보조 아이템 (하락 방지권 / 파괴 방지권 구매 및 On/Off) -->
+                <div class="grid grid-cols-2 gap-2">
+                    <!-- 하락 방지권 -->
+                    <div class="bg-slate-900/90 border border-amber-500/40 rounded-xl p-2.5 flex flex-col justify-between gap-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black text-amber-400">🛡️ 하락 방지권</span>
+                            <span class="text-xs font-bold text-slate-300" id="downgrade-scroll-count">0개</span>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="buyScroll('downgrade', 1)" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-300 text-[10px] font-bold py-1.5 rounded-lg transition active:scale-95">
+                                1개 (500G)
+                            </button>
+                            <button onclick="buyScroll('downgrade', 10)" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-amber-500/40 text-amber-200 text-[10px] font-bold py-1.5 rounded-lg transition active:scale-95">
+                                10개 (5천G)
+                            </button>
+                            <button id="toggle-downgrade-btn" onclick="toggleScroll('downgrade')" class="px-2 py-1.5 rounded-lg text-[10px] font-black border transition bg-slate-950 text-slate-500 border-slate-700">
+                                OFF
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 균열(파괴) 방지권 -->
+                    <div class="bg-slate-900/90 border border-rose-500/40 rounded-xl p-2.5 flex flex-col justify-between gap-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black text-rose-400">💎 균열 방지권</span>
+                            <span class="text-xs font-bold text-slate-300" id="destroy-scroll-count">0개</span>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="buyScroll('destroy', 1)" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-rose-300 text-[10px] font-bold py-1.5 rounded-lg transition active:scale-95">
+                                1개 (1.5천G)
+                            </button>
+                            <button onclick="buyScroll('destroy', 10)" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-rose-500/40 text-rose-200 text-[10px] font-bold py-1.5 rounded-lg transition active:scale-95">
+                                10개 (1.5만G)
+                            </button>
+                            <button id="toggle-destroy-btn" onclick="toggleScroll('destroy')" class="px-2 py-1.5 rounded-lg text-[10px] font-black border transition bg-slate-950 text-slate-500 border-slate-700">
+                                OFF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 강화 결과 메시지 박스 -->
+                <div id="enhance-result-msg" class="text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-slate-900/80 text-slate-300 border border-slate-700/60">
+                    강화 버튼을 눌러 무기를 50강까지 성장시키세요!
+                </div>
+
+                <!-- 강화 버튼 영역 -->
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                    <div class="flex justify-between items-center text-xs mb-2 px-1">
+                        <span class="text-slate-400">보유 골드: <strong id="forge-gold" class="text-amber-400">500 G</strong></span>
+                        <span class="text-slate-400">성공 확률: <strong id="next-success-rate" class="text-emerald-400">95%</strong></span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="enhance-btn" onclick="enhanceWeapon()" class="flex-grow bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 active:scale-95 text-slate-950 font-black py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                            <span>🔥 강화하기 (50 G)</span>
+                        </button>
+                        <button onclick="openProbModal()" class="bg-slate-700 hover:bg-slate-600 text-amber-300 font-bold px-3 py-3 rounded-xl border border-slate-600 text-xs">
+                            📊 확률표
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================
+         무기 추가강화소 모달 (50강 돌파 -> 최대 60강 초월 강화)
+         ======================================================================== -->
+    <div id="extra-forge-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-cyan-500/60 rounded-2xl w-full max-w-lg flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+                <h2 class="text-lg font-black text-cyan-400 flex items-center gap-2">
+                    <span>🔮</span> 무기 추가강화소 (50강 ➔ 60강 초월)
+                </h2>
+                <button onclick="closeExtraForgeModal()" class="text-slate-400 hover:text-white font-bold text-xl px-2">✕</button>
+            </div>
+
+            <div class="p-4 sm:p-5 space-y-4">
+                <div class="bg-cyan-950/40 border border-cyan-500/30 rounded-xl p-3 text-xs text-cyan-200 leading-relaxed">
+                    ✨ <strong>50강 공허의 경지</strong>에 도달한 무기를 한계 돌파시켜 <strong>최대 +60강 창세의 신기</strong>로 진화시키는 특수 제련소입니다. (2세계 진입 또는 50강 무기 보유 시 이용 가능)
+                </div>
+
+                <!-- 초월 무기 쇼케이스 -->
+                <div id="extra-weapon-showcase" class="bg-slate-950 border border-slate-700 rounded-xl p-4 flex flex-col items-center justify-center relative">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span id="extra-tier-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-950 text-purple-300 border border-purple-500">
+                            초월 대기
+                        </span>
+                        <span id="extra-level-badge" class="text-base font-black text-cyan-300">+50</span>
+                    </div>
+
+                    <div id="extra-svg-container" class="w-32 h-32 flex items-center justify-center my-1 transition-all duration-300"></div>
+
+                    <h3 id="extra-weapon-name" class="text-lg font-black text-cyan-300">+50 공허의 검</h3>
+                    <div class="mt-2 text-xs font-bold text-amber-300 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
+                        무기 공격력: +<span id="extra-weapon-atk">0</span>
+                    </div>
+                </div>
+
+                <!-- 방지권 연동 현황 -->
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between">
+                        <span class="text-amber-400 font-bold">🛡️ 하락 방지권 (<span id="extra-dg-count">0</span>개)</span>
+                        <button id="extra-toggle-dg" onclick="toggleScroll('downgrade'); updateExtraForgeUI();" class="px-2 py-1 rounded text-[11px] font-black border bg-slate-900 text-slate-500 border-slate-700">OFF</button>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between">
+                        <span class="text-rose-400 font-bold">💎 균열 방지권 (<span id="extra-ds-count">0</span>개)</span>
+                        <button id="extra-toggle-ds" onclick="toggleScroll('destroy'); updateExtraForgeUI();" class="px-2 py-1 rounded text-[11px] font-black border bg-slate-900 text-slate-500 border-slate-700">OFF</button>
+                    </div>
+                </div>
+
+                <div id="extra-result-msg" class="text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-slate-950 text-cyan-200 border border-slate-800">
+                    50강 무기를 장착하고 초월 제련을 시도하세요!
+                </div>
+
+                <!-- 초월 강화 버튼 -->
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div class="flex justify-between items-center text-xs mb-2 px-1">
+                        <span class="text-slate-400">보유 골드: <strong id="extra-gold" class="text-amber-400">0 G</strong></span>
+                        <span class="text-slate-400">성공 확률: <strong id="extra-success-rate" class="text-cyan-400">-</strong></span>
+                    </div>
+                    <button id="extra-enhance-btn" onclick="enhanceExtraWeapon()" class="w-full bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 active:scale-95 text-white font-black py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                        <span>🔮 초월 제련하기</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================
+         강화 확률표 모달 (0강 ~ 60강)
+         ======================================================================== -->
+    <div id="prob-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-800 border border-slate-600 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl">
+            <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+                <h3 class="text-lg font-black text-amber-400 flex items-center gap-2">
+                    <span>📊</span> 무기 강화 확률표 (0강 ➔ 60강)
+                </h3>
+                <button onclick="closeProbModal()" class="text-slate-400 hover:text-white font-bold text-xl px-2">✕</button>
+            </div>
+            
+            <div class="px-4 py-2 bg-slate-900 border-b border-slate-700 flex flex-wrap gap-1.5 text-[11px] font-bold justify-center">
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-700">1~9강: 초록</span>
+                <span class="px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-500">10~13강: 파랑</span>
+                <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-400 border border-purple-500">14~17강: 보라</span>
+                <span class="px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-500">18~20강: 빨강</span>
+                <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-200 border border-slate-400">21~45강: 은색</span>
+                <span class="px-2 py-0.5 rounded bg-gradient-to-r from-rose-900 via-emerald-900 to-indigo-900 text-amber-200 border border-amber-400">46~49강: 무지개</span>
+                <span class="px-2 py-0.5 rounded bg-indigo-950 text-purple-300 border border-purple-500">50강: 공허</span>
+                <span class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-400">51~60강: 추가강화(천상/창세)</span>
+            </div>
+            
+            <div class="px-4 py-2 bg-slate-900 border-b border-slate-700 flex flex-wrap gap-1.5 text-[11px] font-bold justify-center">
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-700">1~9강: 초록</span>
+                <span class="px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-500">10~13강: 파랑</span>
+                <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-400 border border-purple-500">14~17강: 보라</span>
+                <span class="px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-500">18~20강: 빨강</span>
+                <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-200 border border-slate-400">21~45강: 은색</span>
+                <span class="px-2 py-0.5 rounded bg-gradient-to-r from-rose-900 via-emerald-900 to-indigo-900 text-amber-200 border border-amber-400">46~49강: 무지개</span>
+                <span class="px-2 py-0.5 rounded bg-indigo-950 text-purple-300 border border-purple-500">50강: 공허</span>
+            </div>
+            
+            <div class="px-4 py-2 bg-slate-900 border-b border-slate-700 flex flex-wrap gap-2 text-xs font-bold justify-center">
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-700">1~9강: 초록 계열</span>
+                <span class="px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-700">10~13강: 파란 계열</span>
+                <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-400 border border-purple-700">14~17강: 보라 계열</span>
+                <span class="px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-700">18~20강: 빨강 계열</span>
+            </div>
+
+            <div class="p-4 overflow-y-auto flex-grow">
+                <table class="w-full text-center border-collapse text-xs sm:text-sm">
+                    <thead>
+                        <tr class="bg-slate-900 text-slate-300 border-b border-slate-700">
+                            <th class="py-2 px-2">목표 단계</th>
+                            <th class="py-2 px-2 text-emerald-400">성공</th>
+                            <th class="py-2 px-2 text-slate-400">실패(유지)</th>
+                            <th class="py-2 px-2 text-amber-400">하락(-1)</th>
+                            <th class="py-2 px-2 text-rose-500">파괴(0강)</th>
+                            <th class="py-2 px-2 text-yellow-300">비용</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prob-table-body" class="divide-y divide-slate-700/60"></tbody>
+                </table>
+            </div>
+
+            <div class="p-3 border-t border-slate-700 text-right bg-slate-900/50 rounded-b-2xl">
+                <button onclick="closeProbModal()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-5 py-2 rounded-xl text-sm">
+                    닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================
+         스탯 강화 모달 (골드로 기본 공격력 / 최대 체력 / 이동속도 / 공격범위 강화)
+         ======================================================================== -->
+    <div id="stat-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-800 border border-slate-600 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 bg-slate-900 border-b border-slate-700 flex items-center justify-between">
+                <h2 class="text-lg font-black text-emerald-400 flex items-center gap-2">
+                    <span>💪</span> 캐릭터 스탯 강화
+                </h2>
+                <button onclick="closeStatModal()" class="text-slate-400 hover:text-white font-bold text-xl px-2">✕</button>
+            </div>
+
+            <div class="p-4 sm:p-5 space-y-3 overflow-y-auto">
+                <div class="flex justify-between items-center bg-slate-950 px-3 py-2 rounded-xl border border-slate-700 text-xs sm:text-sm">
+                    <span class="text-slate-400 font-bold">보유 골드</span>
+                    <span class="font-black text-amber-400">💰 <span id="stat-modal-gold">500</span> G</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- 기본 공격력 강화 카드 -->
+                    <div class="bg-slate-900 border border-rose-500/40 rounded-xl p-3 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-sm font-black text-rose-400">⚔️ 기본 공격력</span>
+                                <span class="ml-1 text-[11px] font-bold bg-rose-950 text-rose-300 px-2 py-0.5 rounded-full" id="stat-atk-lv">Lv.0</span>
+                            </div>
+                            <span class="text-[11px] text-slate-400 font-bold">×1.1배</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs bg-slate-950/70 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-300">현재: <strong class="text-white" id="stat-atk-val">6</strong></span>
+                            <span class="text-emerald-400 font-bold">➔ <span id="stat-atk-next">7</span></span>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="upgradeStat('atk')" class="flex-1 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 active:scale-95 text-white font-black py-2 px-2 rounded-xl shadow transition text-xs">
+                                🔥 1회 (<span id="stat-atk-cost">100</span> G)
+                            </button>
+                            <button id="auto-stat-atk-btn" onclick="toggleAutoStat('atk')" class="bg-slate-800 hover:bg-slate-700 border border-rose-500/50 text-rose-300 font-black px-2.5 py-2 rounded-xl transition text-xs">
+                                ⚡ 연속강화
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 최대 체력 강화 카드 -->
+                    <div class="bg-slate-900 border border-emerald-500/40 rounded-xl p-3 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-sm font-black text-emerald-400">❤️ 최대 체력(HP)</span>
+                                <span class="ml-1 text-[11px] font-bold bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded-full" id="stat-hp-lv">Lv.0</span>
+                            </div>
+                            <span class="text-[11px] text-slate-400 font-bold">×1.1배</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs bg-slate-950/70 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-300">현재: <strong class="text-white" id="stat-hp-val">100</strong></span>
+                            <span class="text-emerald-400 font-bold">➔ <span id="stat-hp-next">110</span></span>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="upgradeStat('hp')" class="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-slate-950 font-black py-2 px-2 rounded-xl shadow transition text-xs">
+                                💚 1회 (<span id="stat-hp-cost">100</span> G)
+                            </button>
+                            <button id="auto-stat-hp-btn" onclick="toggleAutoStat('hp')" class="bg-slate-800 hover:bg-slate-700 border border-emerald-500/50 text-emerald-300 font-black px-2.5 py-2 rounded-xl transition text-xs">
+                                ⚡ 연속강화
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 이동속도 강화 카드 -->
+                    <div class="bg-slate-900 border border-sky-500/40 rounded-xl p-3 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-sm font-black text-sky-400">👟 이동속도</span>
+                                <span class="ml-1 text-[11px] font-bold bg-sky-950 text-sky-300 px-2 py-0.5 rounded-full" id="stat-spd-lv">Lv.0</span>
+                            </div>
+                            <span class="text-[11px] text-slate-400 font-bold">×1.06배</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs bg-slate-950/70 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-300">현재: <strong class="text-white" id="stat-spd-val">270</strong></span>
+                            <span class="text-emerald-400 font-bold">➔ <span id="stat-spd-next">286</span></span>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="upgradeStat('spd')" class="flex-1 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 active:scale-95 text-white font-black py-2 px-2 rounded-xl shadow transition text-xs">
+                                💨 1회 (<span id="stat-spd-cost">120</span> G)
+                            </button>
+                            <button id="auto-stat-spd-btn" onclick="toggleAutoStat('spd')" class="bg-slate-800 hover:bg-slate-700 border border-sky-500/50 text-sky-300 font-black px-2.5 py-2 rounded-xl transition text-xs">
+                                ⚡ 연속강화
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 공격범위(활 사거리) 강화 카드 -->
+                    <div class="bg-slate-900 border border-amber-500/40 rounded-xl p-3 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-sm font-black text-amber-400">🎯 공격범위 / 사거리</span>
+                                <span class="ml-1 text-[11px] font-bold bg-amber-950 text-amber-300 px-2 py-0.5 rounded-full" id="stat-rng-lv">Lv.0</span>
+                            </div>
+                            <span class="text-[11px] text-slate-400 font-bold">×1.07배</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs bg-slate-950/70 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-300">현재 배율: <strong class="text-white" id="stat-rng-val">100%</strong></span>
+                            <span class="text-emerald-400 font-bold">➔ <span id="stat-rng-next">107%</span></span>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="upgradeStat('rng')" class="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 active:scale-95 text-slate-950 font-black py-2 px-2 rounded-xl shadow transition text-xs">
+                                🏹 1회 (<span id="stat-rng-cost">150</span> G)
+                            </button>
+                            <button id="auto-stat-rng-btn" onclick="toggleAutoStat('rng')" class="bg-slate-800 hover:bg-slate-700 border border-amber-500/50 text-amber-300 font-black px-2.5 py-2 rounded-xl transition text-xs">
+                                ⚡ 연속강화
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="stat-result-msg" class="text-center text-xs font-bold py-2 px-3 rounded-lg bg-slate-900/80 text-slate-300 border border-slate-700/60">
+                    매 강화마다 필요 골드가 1.5배(소수점 버림) 증가하며 캐릭터 능력이 영구 상승합니다!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================
+         개발자 설정 모달 (50강 테스트 / 무조건 성공 / 재화 & 레벨 치트)
+         ======================================================================== -->
+    <div id="dev-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-fuchsia-500/60 rounded-2xl w-full max-w-md flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+                <h2 class="text-lg font-black text-fuchsia-400 flex items-center gap-2">
+                    <span>🛠️</span> 개발자 설정 콘솔
+                </h2>
+                <button onclick="closeDevModal()" class="text-slate-400 hover:text-white font-bold text-xl px-2">✕</button>
+            </div>
+
+            <div class="p-4 sm:p-5 space-y-3.5 text-xs sm:text-sm">
+                <!-- 강화 무조건 성공 토글 -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <div class="font-black text-amber-300">⚡ 강화 무조건 성공 (100%)</div>
+                        <div class="text-[11px] text-slate-400">대장간 강화 시 실패/하락/파괴 없이 즉시 성공</div>
+                    </div>
+                    <button id="dev-always-success-btn" onclick="toggleDevAlwaysSuccess()" class="px-3 py-1.5 rounded-lg text-xs font-black border transition bg-slate-950 text-slate-400 border-slate-700">
+                        OFF
+                    </button>
+                </div>
+
+                <!-- 무기 단계 즉시 설정 -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-3 space-y-2">
+                    <div class="font-black text-cyan-300">🗡️ 현재 장착 무기 강화 단계 즉시 설정</div>
+                    <div class="grid grid-cols-5 gap-1.5">
+                        <button onclick="devSetWeaponLv(0)" class="bg-slate-900 hover:bg-slate-700 border border-slate-600 py-1.5 rounded-lg font-bold text-xs">+0강</button>
+                        <button onclick="devSetWeaponLv(20)" class="bg-red-950 hover:bg-red-900 border border-red-600 text-red-300 py-1.5 rounded-lg font-bold text-xs">+20강</button>
+                        <button onclick="devSetWeaponLv(45)" class="bg-slate-700 hover:bg-slate-600 border border-white text-white py-1.5 rounded-lg font-bold text-xs">+45강</button>
+                        <button onclick="devSetWeaponLv(50)" class="bg-indigo-950 hover:bg-indigo-900 border border-purple-400 text-purple-200 py-1.5 rounded-lg font-bold text-xs">+50강</button>
+                        <button onclick="devSetWeaponLv(59)" class="bg-cyan-950 hover:bg-cyan-900 border border-cyan-400 text-cyan-200 py-1.5 rounded-lg font-bold text-xs">+59강</button>
+                    </div>
+                    <button onclick="devSetWeaponLv(60)" class="w-full bg-gradient-to-r from-rose-600 via-amber-400 to-cyan-500 hover:opacity-95 text-slate-950 border border-white font-black py-2 rounded-xl text-xs shadow">
+                        👑 즉시 +60강 달성 (창세의 종언 신기 & 최종 오라)
+                    </button>
+                </div>
+
+                <!-- 재화 & 레벨 & 체력 치트 버튼 -->
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="devAddGold(100000000)" class="bg-amber-950/80 hover:bg-amber-900 border border-amber-500/50 text-amber-300 font-bold py-2.5 px-3 rounded-xl text-xs">
+                        💰 +1억 G 지급
+                    </button>
+                    <button onclick="devAddSupplies()" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 font-bold py-2.5 px-3 rounded-xl text-xs">
+                        🛡️ 포션 & 방지권 +10개
+                    </button>
+                    <button onclick="devLevelUp(25)" class="bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-500/50 text-indigo-300 font-bold py-2.5 px-3 rounded-xl text-xs">
+                        ⬆️ 레벨 +25 상승
+                    </button>
+                    <button onclick="devFullHeal()" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-500/50 text-rose-300 font-bold py-2.5 px-3 rounded-xl text-xs">
+                        ❤️ HP 완전 회복
+                    </button>
+                </div>
+
+                <!-- 커맨드 입력창 -->
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 space-y-1.5">
+                    <div class="text-[11px] text-slate-400 font-bold">커맨드 (<span class="text-fuchsia-300">/max60</span>, <span class="text-fuchsia-300">/lv 100</span>, <span class="text-fuchsia-300">/lvup 35</span>, <span class="text-fuchsia-300">/gold 5000000</span>, <span class="text-fuchsia-300">/w2</span>)</div>
+                    <div class="flex gap-1.5">
+                        <input id="dev-cmd-input" type="text" autocomplete="off" spellcheck="false" placeholder="/max60 또는 /lv 100" onkeydown="if(event.key==='Enter'){ event.preventDefault(); runDevCommand(); }" class="flex-grow bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-fuchsia-500" />
+                        <button onclick="runDevCommand()" class="bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-black px-3 py-1.5 rounded-lg text-xs">실행</button>
+                    </div>
+                </div>
+
+                <div id="dev-status-msg" class="text-center text-xs font-bold py-1.5 px-2.5 rounded-lg bg-slate-950 text-fuchsia-300 border border-slate-800">
+                    비밀 모드가 활성화되었습니다.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================
+         게임 설정 모달 (화면/알림 옵션 & 마을 귀환 / 초기화)
+         ======================================================================== -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-600 rounded-2xl w-full max-w-md flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+                <h2 class="text-lg font-black text-slate-100 flex items-center gap-2">
+                    <span>⚙️</span> 게임 설정
+                </h2>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white font-bold text-xl px-2">✕</button>
+            </div>
+
+            <div class="p-4 sm:p-5 space-y-3 text-xs sm:text-sm">
+                <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-slate-100">💥 데미지 / 회복 숫자 표시</div>
+                        <div class="text-[11px] text-slate-400">전투 시 떠오르는 피해량 및 회복량 텍스트</div>
+                    </div>
+                    <button id="setting-dmg-btn" onclick="toggleGameSetting('showDamageText')" class="px-3 py-1.5 rounded-lg text-xs font-black border transition bg-emerald-500 text-slate-950 border-emerald-300">
+                        ON
+                    </button>
+                </div>
+
+                <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-slate-100">🔔 전투 및 레벨업 알림</div>
+                        <div class="text-[11px] text-slate-400">상단 중앙 팝업 알림 표시 여부</div>
+                    </div>
+                    <button id="setting-toast-btn" onclick="toggleGameSetting('showToasts')" class="px-3 py-1.5 rounded-lg text-xs font-black border transition bg-emerald-500 text-slate-950 border-emerald-300">
+                        ON
+                    </button>
+                </div>
+
+                <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-slate-100">🗺️ 미니맵 표시</div>
+                        <div class="text-[11px] text-slate-400">우측 하단 월드 미니맵 노출 여부</div>
+                    </div>
+                    <button id="setting-minimap-btn" onclick="toggleGameSetting('showMinimap')" class="px-3 py-1.5 rounded-lg text-xs font-black border transition bg-emerald-500 text-slate-950 border-emerald-300">
+                        ON
+                    </button>
+                </div>
+
+                <div class="pt-2 grid grid-cols-2 gap-2">
+                    <button onclick="teleportToTown()" class="bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition">
+                        🏡 마을로 귀환
+                    </button>
+                    <button onclick="resetGameProgress()" class="bg-rose-950 hover:bg-rose-900 border border-rose-500/50 text-rose-300 font-bold py-2.5 px-3 rounded-xl text-xs transition">
+                        🔄 캐릭터 초기화
+                    </button>
+                </div>
+
+                <div id="settings-status-msg" class="text-center text-xs font-bold py-1.5 px-2.5 rounded-lg bg-slate-950 text-slate-300 border border-slate-800">
+                    원하는 화면 및 편의 옵션을 설정할 수 있습니다.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           1. 강화 확률표(0~60강) & 무기 데이터 정의
+           ========================================================================== */
+        const BASE_FORGE_MAX = 50;
+        const MAX_ENHANCE_LEVEL = 60;
+
+        const ENHANCE_TABLE = [
+            // 0 -> 20강
+            { target: 1,  success: 95, fail: 5,  downgrade: 0,  destroy: 0,  cost: 50 },
+            { target: 2,  success: 90, fail: 10, downgrade: 0,  destroy: 0,  cost: 80 },
+            { target: 3,  success: 85, fail: 15, downgrade: 0,  destroy: 0,  cost: 120 },
+            { target: 4,  success: 80, fail: 20, downgrade: 0,  destroy: 0,  cost: 180 },
+            { target: 5,  success: 75, fail: 25, downgrade: 0,  destroy: 0,  cost: 250 },
+            { target: 6,  success: 70, fail: 20, downgrade: 10, destroy: 0,  cost: 350 },
+            { target: 7,  success: 65, fail: 20, downgrade: 15, destroy: 0,  cost: 500 },
+            { target: 8,  success: 60, fail: 20, downgrade: 20, destroy: 0,  cost: 700 },
+            { target: 9,  success: 55, fail: 25, downgrade: 20, destroy: 0,  cost: 1000 },
+            { target: 10, success: 50, fail: 25, downgrade: 20, destroy: 5,  cost: 1500 },
+            { target: 11, success: 45, fail: 25, downgrade: 23, destroy: 7,  cost: 2200 },
+            { target: 12, success: 40, fail: 25, downgrade: 25, destroy: 10, cost: 3000 },
+            { target: 13, success: 35, fail: 25, downgrade: 28, destroy: 12, cost: 4200 },
+            { target: 14, success: 30, fail: 25, downgrade: 30, destroy: 15, cost: 6000 },
+            { target: 15, success: 25, fail: 25, downgrade: 32, destroy: 18, cost: 8500 },
+            { target: 16, success: 20, fail: 25, downgrade: 35, destroy: 20, cost: 12000 },
+            { target: 17, success: 15, fail: 25, downgrade: 35, destroy: 25, cost: 17000 },
+            { target: 18, success: 14, fail: 24, downgrade: 35, destroy: 27, cost: 24000 },
+            { target: 19, success: 13, fail: 23, downgrade: 35, destroy: 29, cost: 32000 },
+            { target: 20, success: 12, fail: 23, downgrade: 35, destroy: 30, cost: 42000 },
+            // 20 -> 33강 (백은의 무기 구간)
+            { target: 21, success: 11,   fail: 24, downgrade: 35, destroy: 30, cost: 55000 },
+            { target: 22, success: 10.5, fail: 24.5, downgrade: 35, destroy: 30, cost: 70000 },
+            { target: 23, success: 10,   fail: 25, downgrade: 35, destroy: 30, cost: 90000 },
+            { target: 24, success: 9.5,  fail: 25.5, downgrade: 35, destroy: 30, cost: 115000 },
+            { target: 25, success: 9,    fail: 26, downgrade: 35, destroy: 30, cost: 145000 },
+            { target: 26, success: 8.5,  fail: 26.5, downgrade: 35, destroy: 30, cost: 180000 },
+            { target: 27, success: 8,    fail: 27, downgrade: 35, destroy: 30, cost: 220000 },
+            { target: 28, success: 7.5,  fail: 27.5, downgrade: 35, destroy: 30, cost: 270000 },
+            { target: 29, success: 7,    fail: 28, downgrade: 35, destroy: 30, cost: 330000 },
+            { target: 30, success: 6.5,  fail: 28.5, downgrade: 35, destroy: 30, cost: 400000 },
+            { target: 31, success: 6,    fail: 27, downgrade: 35, destroy: 32, cost: 480000 },
+            { target: 32, success: 5.5,  fail: 27.5, downgrade: 35, destroy: 32, cost: 570000 },
+            { target: 33, success: 5,    fail: 28, downgrade: 35, destroy: 32, cost: 680000 },
+            // 33 -> 45강 (성광의 은빛 무기 구간)
+            { target: 34, success: 4.8,  fail: 27.2, downgrade: 35, destroy: 33, cost: 800000 },
+            { target: 35, success: 4.5,  fail: 27.5, downgrade: 35, destroy: 33, cost: 950000 },
+            { target: 36, success: 4.2,  fail: 27.8, downgrade: 35, destroy: 33, cost: 1120000 },
+            { target: 37, success: 4.0,  fail: 27, downgrade: 35, destroy: 34, cost: 1300000 },
+            { target: 38, success: 3.8,  fail: 27.2, downgrade: 35, destroy: 34, cost: 1500000 },
+            { target: 39, success: 3.5,  fail: 27.5, downgrade: 35, destroy: 34, cost: 1750000 },
+            { target: 40, success: 3.2,  fail: 26.8, downgrade: 35, destroy: 35, cost: 2000000 },
+            { target: 41, success: 3.0,  fail: 27, downgrade: 35, destroy: 35, cost: 2300000 },
+            { target: 42, success: 2.8,  fail: 27.2, downgrade: 35, destroy: 35, cost: 2650000 },
+            { target: 43, success: 2.5,  fail: 26.5, downgrade: 35, destroy: 36, cost: 3000000 },
+            { target: 44, success: 2.3,  fail: 26.7, downgrade: 35, destroy: 36, cost: 3400000 },
+            { target: 45, success: 2.0,  fail: 27, downgrade: 35, destroy: 36, cost: 3900000 },
+            // 45 -> 49강 (무지개빛 초월 무기 구간)
+            { target: 46, success: 1.8,  fail: 25.2, downgrade: 35, destroy: 38, cost: 4500000 },
+            { target: 47, success: 1.5,  fail: 25.5, downgrade: 35, destroy: 38, cost: 5200000 },
+            { target: 48, success: 1.3,  fail: 24.7, downgrade: 35, destroy: 39, cost: 6000000 },
+            { target: 49, success: 1.2,  fail: 24.8, downgrade: 35, destroy: 39, cost: 7000000 },
+            // 49 -> 50강 (공허의 무기 - 정확히 1% 확률!)
+            { target: 50, success: 1,    fail: 24,   downgrade: 35, destroy: 40, cost: 10000000 },
+            // 50 -> 60강 (무기 추가강화소 전용 초월 구간)
+            { target: 51, success: 8.0,  fail: 32.0, downgrade: 35, destroy: 25, cost: 15000000 },
+            { target: 52, success: 7.0,  fail: 31.0, downgrade: 35, destroy: 27, cost: 22000000 },
+            { target: 53, success: 6.0,  fail: 30.0, downgrade: 35, destroy: 29, cost: 30000000 },
+            { target: 54, success: 5.0,  fail: 29.0, downgrade: 35, destroy: 31, cost: 40000000 },
+            { target: 55, success: 4.0,  fail: 28.0, downgrade: 35, destroy: 33, cost: 55000000 },
+            { target: 56, success: 3.2,  fail: 26.8, downgrade: 35, destroy: 35, cost: 75000000 },
+            { target: 57, success: 2.5,  fail: 25.5, downgrade: 35, destroy: 37, cost: 100000000 },
+            { target: 58, success: 1.8,  fail: 24.2, downgrade: 35, destroy: 39, cost: 135000000 },
+            { target: 59, success: 1.2,  fail: 22.8, downgrade: 35, destroy: 41, cost: 180000000 },
+            { target: 60, success: 0.8,  fail: 21.2, downgrade: 35, destroy: 43, cost: 250000000 }
+        ];
+
+        const WEAPON_DATA = {
+            sword: {
+                name: "용사의 검",
+                baseAtk: 18,
+                growth: 14,
+                range: 95,
+                cooldown: 320,
+                crit: 0.15,
+                desc: "전방 부채꼴 근접 베기 (공격력 150% 상향, 치명타 15%)"
+            },
+            bow: {
+                name: "바람의 활",
+                baseAtk: 10,
+                growth: 8,
+                range: 240,
+                cooldown: 400,
+                crit: 0.30,
+                desc: "중거리 화살 발사 (피격 시 적 어그로 끌림)"
+            },
+            polearm: {
+                name: "파멸의 폴암",
+                baseAtk: 16,
+                growth: 12,
+                range: 92,
+                cooldown: 480,
+                crit: 0.10,
+                desc: "주변 360도 회전 광역 창격 (근접 광역 제압)"
+            }
+        };
+
+        // 강화 구간별 색상 반환 (1~9 초록 / 10~13 파랑 / 14~17 보라 / 18~20 빨강 / 21~33 은색 / 34~45 성광 은색 / 46~49 무지개 / 50 공허)
+        function getTierInfo(lv) {
+            if (lv === 0) {
+                return { tierName: "일반 등급", badgeClass: "bg-slate-700 text-slate-300", glowClass: "tier-0", primary: "#94a3b8", secondary: "#cbd5e1", auraCore: "rgba(148,163,184,0.2)" };
+            } else if (lv <= 9) {
+                return { tierName: "신록의 무기 (초록)", badgeClass: "bg-emerald-950 text-emerald-400 border border-emerald-600", glowClass: "tier-green", primary: "#22c55e", secondary: "#86efac", auraCore: "rgba(34,197,94,0.25)" };
+            } else if (lv <= 13) {
+                return { tierName: "심해의 무기 (파랑)", badgeClass: "bg-blue-950 text-blue-400 border border-blue-500", glowClass: "tier-blue", primary: "#3b82f6", secondary: "#93c5fd", auraCore: "rgba(59,130,246,0.3)" };
+            } else if (lv <= 17) {
+                return { tierName: "환영의 무기 (보라)", badgeClass: "bg-purple-950 text-purple-400 border border-purple-500", glowClass: "tier-purple", primary: "#a855f7", secondary: "#d8b4fe", auraCore: "rgba(168,85,247,0.35)" };
+            } else if (lv <= 20) {
+                return { tierName: "신화의 무기 (빨강)", badgeClass: "bg-red-950 text-red-400 border border-red-500", glowClass: "tier-red", primary: "#ef4444", secondary: "#fca5a5", auraCore: "rgba(239,68,68,0.42)" };
+            } else if (lv <= 33) {
+                return { tierName: "백은의 무기 (은색)", badgeClass: "bg-slate-800 text-slate-200 border border-slate-400", glowClass: "tier-silver", primary: "#cbd5e1", secondary: "#f8fafc", auraCore: "rgba(203,213,225,0.38)" };
+            } else if (lv <= 45) {
+                return { tierName: "성광의 은빛 무기 (진은색)", badgeClass: "bg-slate-700 text-white border border-white", glowClass: "tier-bright-silver", primary: "#f8fafc", secondary: "#e2e8f0", auraCore: "rgba(255,255,255,0.45)" };
+            } else if (lv <= 49) {
+                const hue = Math.floor((performance.now() / 12) % 360);
+                return {
+                    tierName: "창세의 무기 (무지개색)",
+                    badgeClass: "bg-gradient-to-r from-rose-900 via-emerald-900 to-indigo-900 text-amber-200 border border-amber-300",
+                    glowClass: "tier-rainbow",
+                    primary: `hsl(${hue}, 95%, 62%)`,
+                    secondary: `hsl(${(hue + 120) % 360}, 95%, 72%)`,
+                    auraCore: `hsla(${hue}, 95%, 60%, 0.42)`
+                };
+            } else if (lv === 50) {
+                return {
+                    tierName: "🌌 공허의 무기 (공허의 색)",
+                    badgeClass: "bg-indigo-950 text-purple-300 border border-purple-400 shadow-lg",
+                    glowClass: "tier-void",
+                    primary: "#6d28d9",
+                    secondary: "#090d16",
+                    auraCore: "rgba(76, 29, 149, 0.58)"
+                };
+            } else if (lv <= 55) {
+                return {
+                    tierName: "💠 천상 초월의 무기 (청금광)",
+                    badgeClass: "bg-cyan-950 text-cyan-300 border border-cyan-400 shadow-lg",
+                    glowClass: "tier-celestial",
+                    primary: "#22d3ee",
+                    secondary: "#fde047",
+                    auraCore: "rgba(34, 211, 238, 0.52)"
+                };
+            } else {
+                return {
+                    tierName: "👑 창세의 신기 (태초의 성광)",
+                    badgeClass: "bg-gradient-to-r from-rose-600 via-amber-300 to-cyan-400 text-slate-950 border border-white font-black shadow-xl",
+                    glowClass: "tier-genesis",
+                    primary: "#fbbf24",
+                    secondary: "#f43f5e",
+                    auraCore: "rgba(251, 191, 36, 0.65)"
+                };
+            }
+        }
+
+        // 강화 단계별 무기 이름 반환 (0강 ~ 60강 모두 고유 명칭 부여)
+        function getWeaponDisplayName(type, lv) {
+            const nameMap = {
+                sword: [
+                    // 0~20
+                    "용사의 검", "단련된 용사의 검", "예리한 용사의 검", "빛나는 용사의 검", "투지의 용사의 검",
+                    "신록의 검", "숲의 수호검", "에메랄드 블레이드", "자연의 검", "만개한 신록검",
+                    "심해의 검", "해류의 검", "사파이어 소드", "심연의 물결검",
+                    "환영의 검", "차원절단검", "아메시스트 소드", "몽환의 마검",
+                    "신화의 검", "불멸의 신화검", "절대자의 검",
+                    // 21~33 (은색)
+                    "백은의 검", "월광의 은검", "순은의 성검", "은빛 기사검", "백금의 수호검",
+                    "찬란한 은광검", "서리의 은검", "은하의 파편검", "백은의 심판검", "진 silver 블레이드",
+                    "은빛 수호자의 검", "만월의 백은검", "백은 제왕의 검",
+                    // 34~45 (성광 은색)
+                    "성광의 은검", "천상의 백은검", "영원의 은빛 성검", "별빛을 머금은 은검", "성좌의 백은검",
+                    "초월한 은빛 검", "태초의 백은검", "신의 대리인 은검", "광휘의 은빛 대검", "불멸의 성광검",
+                    "은빛 창세검", "성광의 지배자 검",
+                    // 46~49 (무지개색)
+                    "무지개빛 성검", "칠색의 창세검", "프리즘 초월검", "오색찬란한 신왕검",
+                    // 50 (공허의 색)
+                    "🌌 공허를 베는 종언의 검",
+                    // 51~60 (추가강화 초월 신기)
+                    "💠 차원을 여는 청광검", "💠 성운을 가르는 천상검", "💠 시공의 지배자 성검", "💠 은하수를 엮는 신검", "💠 초월자의 빛나는 대검",
+                    "👑 태초의 불꽃 성검", "👑 신화를 넘어선 창세검", "👑 만물을 제압하는 신왕검", "👑 영겁의 빛을 품은 신기", "👑 창세의 종언을 고하는 절대신검"
+                ],
+                bow: [
+                    // 0~20
+                    "바람의 활", "단련된 바람의 활", "질풍의 활", "매의 눈 활", "선풍의 활",
+                    "여명의 활", "숲의 사냥활", "에메랄드 롱보우", "바람의 정령활", "만개한 여명활",
+                    "폭풍의 활", "해풍의 활", "사파이어 보우", "대양의 폭풍활",
+                    "천공의 활", "성운의 활", "아메시스트 보우", "환영의 신궁",
+                    "태양의 활", "불멸의 태양궁", "천상의 활",
+                    // 21~33 (은색)
+                    "백은의 활", "월광의 은궁", "순은의 장궁", "은빛 추적자의 활", "백금의 질풍궁",
+                    "찬란한 은광궁", "서리의 은궁", "은하의 유성궁", "백은의 심판궁", "진은의 명궁",
+                    "은빛 수호자의 활", "만월의 백은궁", "백은 제왕의 신궁",
+                    // 34~45 (성광 은색)
+                    "성광의 은궁", "천상의 백은궁", "영원의 은빛 신궁", "별빛을 쏘는 은궁", "성좌의 백은궁",
+                    "초월한 은빛 활", "태초의 백은궁", "신의 눈을 가진 은궁", "광휘의 은빛 장궁", "불멸의 성광궁",
+                    "은빛 창세궁", "성광의 지배자 신궁",
+                    // 46~49 (무지개색)
+                    "무지개빛 신궁", "칠색의 창세궁", "프리즘 초월궁", "오색찬란한 천왕궁",
+                    // 50 (공허의 색)
+                    "🌌 공허를 꿰뚫는 심연의 궁",
+                    // 51~60 (추가강화 초월 신기)
+                    "💠 차원을 꿰뚫는 청광궁", "💠 별자리를 쏘는 천상궁", "💠 시공의 추적자 신궁", "💠 은하를 관통하는 성궁", "💠 초월자의 빛나는 장궁",
+                    "👑 태초의 섬광 신궁", "👑 신화를 넘어선 창세궁", "👑 만물을 꿰뚫는 천왕궁", "👑 영겁의 유성을 쏘는 신기", "👑 창세의 심판을 내리는 절대신궁"
+                ],
+                polearm: [
+                    // 0~20
+                    "파멸의 폴암", "단련된 파멸의 폴암", "관통의 폴암", "전장의 폴암", "맹공의 폴암",
+                    "자연의 폴암", "숲의 분쇄창", "에메랄드 할버드", "대지의 폴암", "만개한 자연창",
+                    "해일의 폴암", "파도의 할버드", "사파이어 폴암", "심해의 격류창",
+                    "심연의 폴암", "균열의 할버드", "아메시스트 폴암", "환영의 마창",
+                    "파멸의 신화창", "불멸의 패왕창", "종말의 폴암",
+                    // 21~33 (은색)
+                    "백은의 폴암", "월광의 은창", "순은의 할버드", "은빛 선봉창", "백금의 파쇄창",
+                    "찬란한 은광창", "서리의 은창", "은하의 유성창", "백은의 심판창", "진은의 전창",
+                    "은빛 수호자의 창", "만월의 백은창", "백은 제왕의 패창",
+                    // 34~45 (성광 은색)
+                    "성광의 은창", "천상의 백은창", "영원의 은빛 마창", "별빛을 가르는 은창", "성좌의 백은창",
+                    "초월한 은빛 폴암", "태초의 백은창", "신의 심판 은창", "광휘의 은빛 할버드", "불멸의 성광창",
+                    "은빛 창세창", "성광의 지배자 폴암",
+                    // 46~49 (무지개색)
+                    "무지개빛 마창", "칠색의 창세창", "프리즘 초월창", "오색찬란한 패왕창",
+                    // 50 (공허의 색)
+                    "🌌 공허를 집어삼키는 파멸창",
+                    // 51~60 (추가강화 초월 신기)
+                    "💠 차원을 찢는 청광창", "💠 천공을 꿰뚫는 천상창", "💠 시공의 패왕 할버드", "💠 은하를 분쇄하는 성창", "💠 초월자의 빛나는 폴암",
+                    "👑 태초의 뇌전 신창", "👑 신화를 넘어선 창세창", "👑 만물을 호령하는 패왕창", "👑 영겁의 파멸을 부르는 신기", "👑 창세의 질서를 세우는 절대신창"
+                ]
+            };
+            const list = nameMap[type] || [];
+            const clampedLv = Math.max(0, Math.min(MAX_ENHANCE_LEVEL, lv));
+            return list[clampedLv] || WEAPON_DATA[type].name;
+        }
+
+        /* ==========================================================================
+           2. 오픈월드 맵(1세계 & 2세계) 및 게임 상태 초기화
+           ========================================================================== */
+        const WORLD_SIZE = 4800;
+        const TOWN_CENTER = { x: 550, y: 550, radius: 260 };
+        const PORTAL_POS = { x: 730, y: 550, radius: 42 }; // 시작의 마을 동쪽에 생성되는 2세계 차원문
+
+        // 1세계: 9개 세분화 구역 정의 (Lv.1 ~ Lv.100)
+        const ZONES_W1 = [
+            { id: 'abyss',          name: '🔮 심연의 왕좌 (Lv.86~100)', color: 'text-purple-400',  bg: '#2e1065', minLv: 86, maxLv: 100, x1: 3600, y1: 3600, x2: 4800, y2: 4800 },
+            { id: 'lava_core',      name: '🔥 용암 심장부 (Lv.74~85)', color: 'text-red-400',     bg: '#5c0b0b', minLv: 74, maxLv: 85,  x1: 3100, y1: 3100, x2: 4800, y2: 4800 },
+            { id: 'lava_ridge',     name: '🌋 화염 협곡 외곽 (Lv.61~73)',color: 'text-orange-400',  bg: '#450a0a', minLv: 61, maxLv: 73,  x1: 2400, y1: 2400, x2: 4800, y2: 4800 },
+            { id: 'desert_oasis',   name: '🌴 유령 오아시스 (Lv.49~60)',color: 'text-yellow-300',  bg: '#5c2805', minLv: 49, maxLv: 60,  x1: 1100, y1: 3400, x2: 2400, y2: 4800 },
+            { id: 'desert_wastes',  name: '🏜️ 메마른 황야 (Lv.36~48)', color: 'text-amber-400',   bg: '#451a03', minLv: 36, maxLv: 48,  x1: 0,    y1: 2400, x2: 2400, y2: 4800 },
+            { id: 'forest_deep',    name: '🕸️ 고대 숲 심층 (Lv.26~35)', color: 'text-teal-300',    bg: '#043d30', minLv: 26, maxLv: 35,  x1: 3400, y1: 0,    x2: 4800, y2: 2400 },
+            { id: 'forest_edge',    name: '🌲 어둠의 숲 입구 (Lv.16~25)',color: 'text-emerald-400', bg: '#064e3b', minLv: 16, maxLv: 25,  x1: 2400, y1: 0,    x2: 4800, y2: 2400 },
+            { id: 'meadow_hills',   name: '🌼 바람 언덕 (Lv.8~15)',    color: 'text-green-300',   bg: '#166534', minLv: 8,  maxLv: 15,  x1: 1100, y1: 0,    x2: 2400, y2: 2400 },
+            { id: 'meadow_valley',  name: '🌿 새싹 초원 (Lv.1~7)',     color: 'text-lime-400',    bg: '#14532d', minLv: 1,  maxLv: 7,   x1: 0,    y1: 0,    x2: 2400, y2: 2400 }
+        ];
+
+        // 2세계(천상·차원계): 6개 고레벨 사냥터 및 다수 보스 구역 (Lv.101 ~ Lv.250)
+        const ZONES_W2 = [
+            { id: 'w2_genesis',     name: '👑 태초의 신좌 (Lv.211~250)', color: 'text-amber-300',   bg: '#3b0764', minLv: 211, maxLv: 250, x1: 3400, y1: 3400, x2: 4800, y2: 4800, bossCount: 5 },
+            { id: 'w2_void_rift',   name: '🕳️ 공허의 균열 (Lv.181~210)', color: 'text-fuchsia-400', bg: '#1e1b4b', minLv: 181, maxLv: 210, x1: 2400, y1: 2400, x2: 4800, y2: 4800, bossCount: 4 },
+            { id: 'w2_starfall',    name: '🌠 유성 낙하 지대 (Lv.151~180)',color: 'text-indigo-300', bg: '#172554', minLv: 151, maxLv: 180, x1: 0,    y1: 2400, x2: 2400, y2: 4800, bossCount: 4 },
+            { id: 'w2_thunder',     name: '⚡ 뇌전의 폭풍령 (Lv.126~150)',color: 'text-sky-300',    bg: '#0c4a6e', minLv: 126, maxLv: 150, x1: 2400, y1: 0,    x2: 4800, y2: 2400, bossCount: 3 },
+            { id: 'w2_celestial',   name: '💠 천상의 외곽 정원 (Lv.101~125)',color: 'text-cyan-300', bg: '#164e63', minLv: 101, maxLv: 125, x1: 0,    y1: 0,    x2: 2400, y2: 2400, bossCount: 3 }
+        ];
+
+        function getActiveZones() {
+            return player.world === 2 ? ZONES_W2 : ZONES_W1;
+        }
+
+        const canvas = document.getElementById('world-canvas');
+        const ctx = canvas.getContext('2d');
+        const miniCanvas = document.getElementById('minimap-canvas');
+        const miniCtx = miniCanvas.getContext('2d');
+
+        let player = {
+            world: 1, // 1: 1세계(현세), 2: 2세계(천상·차원계)
+            x: 550,
+            y: 550,
+            radius: 18,
+            speed: 270,
+            rangeMultiplier: 1.0,
+            angle: 0,
+            level: 1,
+            exp: 0,
+            maxExp: 100,
+            hp: 100,
+            maxHp: 100,
+            baseAtk: 6,
+            statUpgrades: {
+                atkLevel: 0,
+                atkCost: 100,
+                hpLevel: 0,
+                hpCost: 100,
+                spdLevel: 0,
+                spdCost: 120,
+                rngLevel: 0,
+                rngCost: 150
+            },
+            gold: 500,
+            potions: 3,
+            scrolls: {
+                downgrade: 0,
+                destroy: 0
+            },
+            scrollActive: {
+                downgrade: false,
+                destroy: false
+            },
+            devSettings: {
+                alwaysSuccess: false
+            },
+            gameSettings: {
+                showDamageText: true,
+                showToasts: true,
+                showMinimap: true
+            },
+            currentWeapon: 'sword',
+            weapons: {
+                sword: { level: 0 },
+                bow: { level: 0 },
+                polearm: { level: 0 }
+            },
+            lastAttackTime: 0,
+            swingTimer: 0,
+            invulnTimer: 0
+        };
+
+        // 키 입력 상태
+        const keys = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+
+        // 비밀 개발자 모드 진입 상태 (샘물 연속 클릭 카운터 & 시크릿 코드 버퍼)
+        let secretFountainClicks = 0;
+        let lastFountainClickTime = 0;
+        let secretCodeBuffer = '';
+
+        // 월드 오브젝트 (나무, 바위 등 장식물)
+        let props = [];
+        // 필드 몬스터 배열
+        let monsters = [];
+        // 원거리 화살 투사체
+        let projectiles = [];
+        // 플로팅 데미지 & 이펙트 파티클
+        let floatingTexts = [];
+        let slashEffects = [];
+
+        function buildWorldEntities() {
+            props = [];
+            monsters = [];
+            projectiles = [];
+            slashEffects = [];
+
+            const activeZones = getActiveZones();
+
+            // 1. 월드 지형 장식물 생성 (마을 안전지대 제외)
+            for (let i = 0; i < 220; i++) {
+                const px = 120 + Math.random() * (WORLD_SIZE - 240);
+                const py = 120 + Math.random() * (WORLD_SIZE - 240);
+                if (Math.hypot(px - TOWN_CENTER.x, py - TOWN_CENTER.y) > TOWN_CENTER.radius + 70) {
+                    const zone = getZoneAt(px, py);
+                    props.push({
+                        x: px,
+                        y: py,
+                        radius: 22 + Math.random() * 14,
+                        type: player.world === 2 ? 'crystal' : ((zone.id.includes('meadow') || zone.id.includes('forest')) ? 'tree' : 'rock')
+                    });
+                }
+            }
+
+            // 2. 구역별 일반 몬스터 및 보스 몬스터 스폰
+            activeZones.forEach(zone => {
+                const normalCount = player.world === 2 ? 12 : 14;
+                for (let i = 0; i < normalCount; i++) {
+                    spawnFieldMonster(zone, null, false);
+                }
+                // 2세계에는 구역마다 다수의 거대 보스 몬스터 추가 배치!
+                if (player.world === 2 && zone.bossCount) {
+                    for (let b = 0; b < zone.bossCount; b++) {
+                        spawnFieldMonster(zone, null, true);
+                    }
+                }
+            });
+        }
+
+        function initWorld() {
+            buildWorldEntities();
+        }
+
+        function switchWorld(targetWorld) {
+            if (targetWorld === 2 && player.level < 100) {
+                showToast('🔒 Lv.100을 달성해야 2세계 차원문에 진입할 수 있습니다!', 'bg-rose-950/95 border-rose-500 text-rose-200');
+                return;
+            }
+            player.world = targetWorld;
+            player.x = TOWN_CENTER.x;
+            player.y = TOWN_CENTER.y;
+            buildWorldEntities();
+            updateHUD();
+
+            if (targetWorld === 2) {
+                showToast('🌀 2세계 [천상·차원계]에 진입했습니다! 강력한 보스들과 60강 초월의 길이 열립니다!', 'bg-cyan-950/95 border-cyan-400 text-cyan-200');
+            } else {
+                showToast('🌍 1세계 [현세] 시작의 마을로 귀환했습니다.', 'bg-emerald-950/95 border-emerald-400 text-emerald-200');
+            }
+        }
+
+        function interactPortal() {
+            if (player.world === 1) {
+                if (player.level < 100) {
+                    showToast('🔒 Lv.100 달성 시 2세계 입구가 열립니다!', 'bg-rose-950/95 border-rose-500 text-rose-200');
+                    return;
+                }
+                switchWorld(2);
+            } else {
+                switchWorld(1);
+            }
+        }
+
+        function getZoneAt(x, y) {
+            if (Math.hypot(x - TOWN_CENTER.x, y - TOWN_CENTER.y) <= TOWN_CENTER.radius) {
+                return {
+                    id: 'town',
+                    name: player.world === 2 ? '🏛️ 2세계 천상 성역 (안전지대)' : '🏡 시작의 마을 (안전지대)',
+                    color: player.world === 2 ? 'text-cyan-300' : 'text-emerald-400',
+                    minLv: 0,
+                    maxLv: 0
+                };
+            }
+            const activeZones = getActiveZones();
+            for (let i = 0; i < activeZones.length; i++) {
+                const z = activeZones[i];
+                if (x >= z.x1 && x <= z.x2 && y >= z.y1 && y <= z.y2) {
+                    return z;
+                }
+            }
+            return activeZones[activeZones.length - 1];
+        }
+
+        // 특정 구역 또는 지정된 스폰 좌표(spawnPos)에 몬스터(일반/보스) 생성
+        function spawnFieldMonster(targetZone = null, spawnPos = null, isBoss = false) {
+            const activeZones = getActiveZones();
+            const zone = targetZone || activeZones[Math.floor(Math.random() * activeZones.length)];
+            let mx, my;
+
+            if (spawnPos) {
+                mx = spawnPos.x;
+                my = spawnPos.y;
+            } else {
+                let attempts = 0;
+                do {
+                    mx = zone.x1 + 80 + Math.random() * (zone.x2 - zone.x1 - 160);
+                    my = zone.y1 + 80 + Math.random() * (zone.y2 - zone.y1 - 160);
+                    attempts++;
+                } while (
+                    attempts < 35 &&
+                    (Math.hypot(mx - TOWN_CENTER.x, my - TOWN_CENTER.y) <= TOWN_CENTER.radius + 70 ||
+                    getZoneAt(mx, my).id !== zone.id)
+                );
+            }
+
+            // 보스는 해당 구역의 최고 레벨로 등장
+            const lv = isBoss ? zone.maxLv : Math.floor(zone.minLv + Math.random() * (zone.maxLv - zone.minLv + 1));
+            
+            let mName = '초원 슬라임';
+            let mColor = '#4ade80';
+            let mRadius = 18;
+            let mSpeed = 95;
+
+            if (player.world === 1) {
+                if (zone.id === 'meadow_valley') { mName = '새싹 슬라임'; mColor = '#4ade80'; mRadius = 18; }
+                else if (zone.id === 'meadow_hills') { mName = '바람 뿔토끼'; mColor = '#a3e635'; mRadius = 20; }
+                else if (zone.id === 'forest_edge') { mName = '어둠의 고블린'; mColor = '#10b981'; mRadius = 21; }
+                else if (zone.id === 'forest_deep') { mName = '고대 나무정령'; mColor = '#059669'; mRadius = 25; }
+                else if (zone.id === 'desert_wastes') { mName = '사막 독전갈'; mColor = '#f59e0b'; mRadius = 22; }
+                else if (zone.id === 'desert_oasis') { mName = '오아시스 모래골렘'; mColor = '#eab308'; mRadius = 27; }
+                else if (zone.id === 'lava_ridge') { mName = '화염 협곡 기사'; mColor = '#f97316'; mRadius = 24; }
+                else if (zone.id === 'lava_core') { mName = '용암 지옥견'; mColor = '#ef4444'; mRadius = 29; }
+                else {
+                    mName = lv < 100 ? '심연의 군주' : '👑 종말의 마왕';
+                    mColor = lv < 100 ? '#a855f7' : '#ec4899';
+                    mRadius = lv < 100 ? 31 : 38;
+                    mSpeed = 115;
+                }
+            } else {
+                // 2세계(천상·차원계) 일반 몬스터 & 다수의 거대 보스
+                if (zone.id === 'w2_celestial') {
+                    mName = isBoss ? '👑 [BOSS] 천상 정원 수호자' : '천공의 빛정령';
+                    mColor = isBoss ? '#22d3ee' : '#67e8f9';
+                    mRadius = isBoss ? 40 : 23;
+                    mSpeed = isBoss ? 125 : 110;
+                } else if (zone.id === 'w2_thunder') {
+                    mName = isBoss ? '👑 [BOSS] 뇌제 발키리' : '폭풍의 뇌전기사';
+                    mColor = isBoss ? '#38bdf8' : '#7dd3fc';
+                    mRadius = isBoss ? 42 : 24;
+                    mSpeed = isBoss ? 135 : 115;
+                } else if (zone.id === 'w2_starfall') {
+                    mName = isBoss ? '👑 [BOSS] 성운의 거신병' : '유성 파편 골렘';
+                    mColor = isBoss ? '#818cf8' : '#a5b4fc';
+                    mRadius = isBoss ? 44 : 26;
+                    mSpeed = isBoss ? 120 : 105;
+                } else if (zone.id === 'w2_void_rift') {
+                    mName = isBoss ? '👑 [BOSS] 차원 균열의 지배자' : '공허의 추적자';
+                    mColor = isBoss ? '#e879f9' : '#c084fc';
+                    mRadius = isBoss ? 46 : 27;
+                    mSpeed = isBoss ? 140 : 120;
+                } else {
+                    mName = isBoss ? '👑 [BOSS] 창세의 절대신' : '태초의 심판관';
+                    mColor = isBoss ? '#fbbf24' : '#f43f5e';
+                    mRadius = isBoss ? 50 : 29;
+                    mSpeed = isBoss ? 145 : 125;
+                }
+            }
+
+            // 레벨 및 보스 여부에 따른 스탯 스케일링 (2세계 난이도 완화 / EXP 5배 / 골드 10배)
+            const bossHpMult = isBoss ? 3.2 : 1.0;
+            const bossAtkMult = isBoss ? 1.25 : 1.0;
+            const bossRewardMult = isBoss ? 5.0 : 1.0;
+            const worldHpScale = player.world === 2 ? 1.45 : 1.0;
+            const worldAtkScale = player.world === 2 ? 1.12 : 1.0;
+            const worldExpScale = player.world === 2 ? 1.8 : 1.0;
+            const worldGoldScale = player.world === 2 ? 2.5 : 1.0;
+
+            const maxHp = Math.floor((45 + Math.pow(lv, 1.9) * 15) * worldHpScale * bossHpMult);
+            const atk = Math.floor((6 + Math.pow(lv, 1.38) * 3.4) * worldAtkScale * bossAtkMult);
+            const exp = Math.floor((25 + Math.pow(lv, 1.48) * 14) * worldExpScale * bossRewardMult * 5);
+            const gold = Math.floor((40 + Math.pow(lv, 1.58) * 22) * worldGoldScale * bossRewardMult * 10);
+
+            monsters.push({
+                name: mName,
+                lv: lv,
+                isBoss: isBoss,
+                hp: maxHp,
+                maxHp: maxHp,
+                atk: atk,
+                exp: exp,
+                gold: gold,
+                speed: mSpeed,
+                radius: mRadius,
+                color: mColor,
+                zone: zone,
+                x: mx,
+                y: my,
+                spawnX: mx,
+                spawnY: my,
+                aggroTimer: 0,
+                attackCooldown: 0,
+                hitFlash: 0
+            });
+        }
+
+        /* ==========================================================================
+           3. 전투 및 플레이어 액션 로직
+           ========================================================================== */
+        function getWeaponAtk(type) {
+            const data = WEAPON_DATA[type];
+            const lv = player.weapons[type].level;
+            let mult = 1.0;
+            if (lv >= 56) mult = 9.5;
+            else if (lv >= 51) mult = 6.8;
+            else if (lv === 50) mult = 5.0;
+            else if (lv >= 46) mult = 3.8;
+            else if (lv >= 34) mult = 2.8;
+            else if (lv >= 21) mult = 2.1;
+            else if (lv >= 18) mult = 1.6;
+            else if (lv >= 14) mult = 1.35;
+            else if (lv >= 10) mult = 1.15;
+
+            const swordBuff = type === 'sword' ? 1.5 : 1.0; // 검 공격력 150% 보정
+            return Math.floor((data.baseAtk + lv * data.growth) * mult * swordBuff);
+        }
+
+        function getWeaponRange(type) {
+            return Math.floor(WEAPON_DATA[type].range * player.rangeMultiplier);
+        }
+
+        function getTotalAtk() {
+            return player.baseAtk + getWeaponAtk(player.currentWeapon);
+        }
+
+        function playerAttack() {
+            const now = performance.now();
+            const wType = player.currentWeapon;
+            const wInfo = WEAPON_DATA[wType];
+            const effectiveRange = getWeaponRange(wType);
+
+            if (now - player.lastAttackTime < wInfo.cooldown) return;
+            player.lastAttackTime = now;
+            player.swingTimer = 0.22;
+
+            const wLv = player.weapons[wType].level;
+            const tier = getTierInfo(wLv);
+
+            if (wType === 'bow') {
+                // 활: 강화된 사거리에 맞춰 투사체 수명 설정
+                const arrowSpeed = 580;
+                projectiles.push({
+                    x: player.x + Math.cos(player.angle) * 20,
+                    y: player.y + Math.sin(player.angle) * 20,
+                    vx: Math.cos(player.angle) * arrowSpeed,
+                    vy: Math.sin(player.angle) * arrowSpeed,
+                    life: effectiveRange / arrowSpeed,
+                    color: tier.primary,
+                    level: wLv
+                });
+            } else if (wType === 'sword') {
+                // 검: 전방 부채꼴 베기
+                slashEffects.push({
+                    x: player.x,
+                    y: player.y,
+                    angle: player.angle,
+                    radius: effectiveRange,
+                    isFullCircle: false,
+                    color: tier.primary,
+                    life: 0.18,
+                    maxLife: 0.18
+                });
+                checkMeleeHit(effectiveRange, false);
+            } else {
+                // 폴암: 360도 광역 회전 공격
+                slashEffects.push({
+                    x: player.x,
+                    y: player.y,
+                    angle: player.angle,
+                    radius: effectiveRange,
+                    isFullCircle: true,
+                    color: tier.primary,
+                    life: 0.24,
+                    maxLife: 0.24
+                });
+                checkMeleeHit(effectiveRange, true);
+            }
+        }
+
+        function checkMeleeHit(range, isFullCircle) {
+            const wInfo = WEAPON_DATA[player.currentWeapon];
+            for (let i = monsters.length - 1; i >= 0; i--) {
+                const m = monsters[i];
+                const dx = m.x - player.x;
+                const dy = m.y - player.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist <= range + m.radius) {
+                    if (!isFullCircle) {
+                        // 전방 110도 각도 판정
+                        const angleToMonster = Math.atan2(dy, dx);
+                        let diff = angleToMonster - player.angle;
+                        while (diff > Math.PI) diff -= Math.PI * 2;
+                        while (diff < -Math.PI) diff += Math.PI * 2;
+                        if (Math.abs(diff) > 1.0) continue;
+                    }
+                    damageMonster(m, i, wInfo.crit);
+                }
+            }
+        }
+
+        function damageMonster(monster, index, critChance) {
+            // [핵심 규칙] 본인 레벨 + 3보다 높은 몬스터는 처치 및 데미지 불가!
+            if (monster.lv > player.level + 3) {
+                addFloatingText(
+                    monster.x,
+                    monster.y - monster.radius - 12,
+                    `🚫 사냥 불가! (최대 Lv.${player.level + 3})`,
+                    '#f87171',
+                    14
+                );
+                // 넉백만 살짝 적용
+                const knockAngle = Math.atan2(monster.y - player.y, monster.x - player.x);
+                monster.x += Math.cos(knockAngle) * 6;
+                monster.y += Math.sin(knockAngle) * 6;
+                return;
+            }
+
+            const isCrit = Math.random() < critChance;
+            const variance = 0.9 + Math.random() * 0.2;
+            const dmg = Math.max(1, Math.floor(getTotalAtk() * variance * (isCrit ? 1.8 : 1.0)));
+
+            monster.hp -= dmg;
+            monster.hitFlash = 0.12;
+            monster.aggroTimer = 6.0; // 활이나 근접 공격에 맞으면 6초간 플레이어에게 어그로 끌림!
+
+            // 넉백 효과
+            const knockAngle = Math.atan2(monster.y - player.y, monster.x - player.x);
+            monster.x += Math.cos(knockAngle) * 14;
+            monster.y += Math.sin(knockAngle) * 14;
+
+            addFloatingText(monster.x, monster.y - monster.radius - 8, isCrit ? `💥${dmg}!` : `-${dmg}`, isCrit ? '#fbbf24' : '#ffffff', isCrit ? 18 : 14);
+
+            if (monster.hp <= 0) {
+                // 몬스터 처치 보상
+                player.gold += monster.gold;
+                gainExp(monster.exp);
+                addFloatingText(monster.x, monster.y - 25, `+${monster.gold.toLocaleString()}G  +${monster.exp.toLocaleString()}EXP`, '#34d399', 13);
+                if (monster.isBoss) {
+                    showToast(`🏆 보스 처치! [${monster.name}] 격파 보상 +${monster.gold.toLocaleString()} G!`, 'bg-amber-950/95 border-amber-400 text-amber-200');
+                }
+                const deadZone = monster.zone;
+                const originPos = { x: monster.spawnX, y: monster.spawnY };
+                const wasBoss = monster.isBoss;
+                const spawnWorld = player.world;
+                monsters.splice(index, 1);
+                // 5초 후 원래 스폰 장소에서 리스폰 (같은 월드일 때만)
+                setTimeout(() => {
+                    if (player.world === spawnWorld) {
+                        spawnFieldMonster(deadZone, originPos, wasBoss);
+                    }
+                }, 5000);
+            }
+        }
+
+        function damagePlayer(atk, attackerName) {
+            if (player.invulnTimer > 0) return;
+
+            const dmg = Math.max(1, Math.floor(atk * (0.9 + Math.random() * 0.2)));
+            player.hp = Math.max(0, player.hp - dmg);
+            player.invulnTimer = 0.5;
+
+            addFloatingText(player.x, player.y - player.radius - 10, `-${dmg}`, '#f43f5e', 16);
+
+            if (player.hp <= 0) {
+                const lostGold = Math.min(player.gold, Math.floor(player.gold * 0.1));
+                player.gold -= lostGold;
+                player.x = TOWN_CENTER.x;
+                player.y = TOWN_CENTER.y;
+                player.hp = player.maxHp;
+                player.invulnTimer = 1.5;
+
+                // 마을 귀환 시 추격하던 몬스터 어그로 초기화
+                for (const m of monsters) {
+                    m.aggroTimer = 0;
+                }
+
+                showToast(
+                    `💀 ${attackerName}에게 쓰러져 마을로 귀환했습니다! (-${lostGold.toLocaleString()} G)`,
+                    'bg-rose-950/95 border-rose-500 text-rose-200'
+                );
+            }
+        }
+
+        function gainExp(amount) {
+            const prevLv = player.level;
+            player.exp += amount;
+            while (player.exp >= player.maxExp) {
+                player.exp -= player.maxExp;
+                player.level += 1;
+                player.maxExp = Math.floor(100 * Math.pow(1.24, player.level - 1));
+                player.maxHp += 30;
+                player.hp = player.maxHp;
+                player.baseAtk += 5;
+                showToast(`🎉 레벨 업! Lv.${player.level} 달성! (최대 HP +30, 공격력 +5)`, 'bg-amber-950/90 border-amber-400 text-amber-200');
+            }
+            if (prevLv < 100 && player.level >= 100) {
+                showToast('🌀 Lv.100 달성! 시작의 마을에 [2세계 차원문]이 열렸습니다!', 'bg-cyan-950/95 border-cyan-400 text-cyan-200');
+            }
+        }
+
+        function usePotion() {
+            if (player.potions <= 0) {
+                showToast('❌ 보유한 체력 포션이 없습니다!', 'bg-slate-900/90 border-slate-600 text-slate-300');
+                return;
+            }
+            if (player.hp >= player.maxHp) {
+                showToast('❤️ 이미 체력이 가득 차 있습니다.', 'bg-slate-900/90 border-slate-600 text-slate-300');
+                return;
+            }
+            player.potions -= 1;
+            const healAmount = Math.floor(player.maxHp * 0.5);
+            player.hp = Math.min(player.maxHp, player.hp + healAmount);
+            addFloatingText(player.x, player.y - 25, `+${healAmount} HP`, '#4ade80', 16);
+            updateHUD();
+        }
+
+        function buyPotion() {
+            if (player.gold < 30) {
+                showToast('❌ 골드가 부족합니다! (포션 1개 = 30G)', 'bg-rose-950/90 border-rose-500 text-rose-200');
+                return;
+            }
+            player.gold -= 30;
+            player.potions += 1;
+            showToast('🧪 체력 포션 1개를 구매했습니다!', 'bg-emerald-950/90 border-emerald-500 text-emerald-200');
+            updateHUD();
+        }
+
+        function addFloatingText(x, y, text, color, size) {
+            if (!player.gameSettings.showDamageText) return;
+            floatingTexts.push({ x, y, text, color, size, life: 0.85 });
+        }
+
+        function showToast(msg, styleClass) {
+            if (!player.gameSettings.showToasts) return;
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = `px-4 py-1.5 rounded-full border text-xs sm:text-sm font-bold shadow-lg transition-all duration-300 ${styleClass}`;
+            el.innerText = msg;
+            container.appendChild(el);
+            setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(-10px)';
+                setTimeout(() => el.remove(), 300);
+            }, 2200);
+        }
+
+        /* ==========================================================================
+           4. 대장간 강화 시스템 (검/활/폴암 & 20강)
+           ========================================================================== */
+        function selectWeapon(type) {
+            player.currentWeapon = type;
+            ['sword', 'bow', 'polearm'].forEach(w => {
+                const tab = document.getElementById(`tab-${w}`);
+                if (w === type) {
+                    tab.className = "py-2 rounded-lg font-bold text-xs sm:text-sm transition bg-amber-500 text-slate-900 shadow";
+                } else {
+                    tab.className = "py-2 rounded-lg font-bold text-xs sm:text-sm transition text-slate-400 hover:text-white";
+                }
+            });
+            updateForgeUI();
+            updateHUD();
+        }
+
+        // 하락 방지권 / 균열(파괴) 방지권 구매 및 On/Off 로직
+        function buyScroll(type, count = 1) {
+            const unitCost = type === 'downgrade' ? 500 : 1500;
+            const totalCost = unitCost * count;
+            const name = type === 'downgrade' ? '하락 방지권' : '균열 방지권';
+            const msgBox = document.getElementById('enhance-result-msg');
+
+            if (player.gold < totalCost) {
+                msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-rose-950/80 text-rose-400 border border-rose-700";
+                msgBox.innerText = `❌ 골드가 부족합니다! (${name} ${count}개: ${totalCost.toLocaleString()} G)`;
+                shakeShowcase();
+                return;
+            }
+            player.gold -= totalCost;
+            player.scrolls[type] += count;
+            player.scrollActive[type] = true; // 구매 시 자동으로 ON 활성화
+            msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-slate-900 text-emerald-300 border border-emerald-700/60";
+            msgBox.innerText = `🛍️ ${name} ${count}개를 구매했습니다! (보유: ${player.scrolls[type]}개 / ON)`;
+            updateForgeUI();
+            updateHUD();
+        }
+
+        function toggleScroll(type) {
+            const name = type === 'downgrade' ? '하락 방지권' : '균열 방지권';
+            const msgBox = document.getElementById('enhance-result-msg');
+
+            if (!player.scrollActive[type] && player.scrolls[type] <= 0) {
+                msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-rose-950/80 text-rose-400 border border-rose-700";
+                msgBox.innerText = `❌ 보유한 ${name}이 없습니다! 먼저 골드로 구매하세요.`;
+                return;
+            }
+            player.scrollActive[type] = !player.scrollActive[type];
+            updateForgeUI();
+        }
+
+        function enhanceWeapon() {
+            const wType = player.currentWeapon;
+            const currentLv = player.weapons[wType].level;
+            const wName = getWeaponDisplayName(wType, currentLv);
+            const msgBox = document.getElementById('enhance-result-msg');
+
+            if (currentLv >= MAX_ENHANCE_LEVEL) return;
+            const rule = ENHANCE_TABLE[currentLv];
+
+            if (player.gold < rule.cost) {
+                msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-rose-950/80 text-rose-400 border border-rose-700";
+                msgBox.innerText = `❌ 골드가 부족합니다! (필요: ${rule.cost.toLocaleString()} G)`;
+                shakeShowcase();
+                return;
+            }
+
+            player.gold -= rule.cost;
+            const roll = Math.random() * 100;
+            const pSuccess = player.devSettings.alwaysSuccess ? 100 : rule.success;
+            const pFail = pSuccess + rule.fail;
+            const pDowngrade = pFail + rule.downgrade;
+
+            if (roll < pSuccess) {
+                player.weapons[wType].level += 1;
+                const newLv = player.weapons[wType].level;
+                const nextDisplayName = getWeaponDisplayName(wType, newLv);
+                msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-600";
+                msgBox.innerText = `✨ 강화 성공! [+${newLv} ${nextDisplayName}] 달성!`;
+            } else if (roll < pFail) {
+                msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-slate-900 text-slate-300 border border-slate-600";
+                msgBox.innerText = `💨 강화 실패... [+${currentLv} ${wName}] 등급이 유지되었습니다.`;
+                shakeShowcase();
+            } else if (roll < pDowngrade) {
+                // 하락 판정 시 하락 방지권 ON 확인
+                if (player.scrollActive.downgrade && player.scrolls.downgrade > 0) {
+                    player.scrolls.downgrade -= 1;
+                    if (player.scrolls.downgrade === 0) player.scrollActive.downgrade = false;
+                    msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-amber-950/90 text-amber-300 border border-amber-500";
+                    msgBox.innerText = `🛡️ 하락 방지권 발동! [+${currentLv} ${wName}] 등급 하락을 막았습니다!`;
+                } else {
+                    player.weapons[wType].level = Math.max(0, currentLv - 1);
+                    const newLv = player.weapons[wType].level;
+                    const downDisplayName = getWeaponDisplayName(wType, newLv);
+                    msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-amber-950/80 text-amber-400 border border-amber-600";
+                    msgBox.innerText = `🔻 강화 하락! [+${newLv} ${downDisplayName}](으)로 단계가 하락했습니다.`;
+                }
+                shakeShowcase();
+            } else {
+                // 파괴(균열) 판정 시 균열 방지권 ON 확인
+                if (player.scrollActive.destroy && player.scrolls.destroy > 0) {
+                    player.scrolls.destroy -= 1;
+                    if (player.scrolls.destroy === 0) player.scrollActive.destroy = false;
+                    msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-rose-950/90 text-rose-300 border border-rose-500";
+                    msgBox.innerText = `💎 균열 방지권 발동! [+${currentLv} ${wName}] 무기가 파괴되지 않고 보존되었습니다!`;
+                } else {
+                    player.weapons[wType].level = 0;
+                    const baseDisplayName = getWeaponDisplayName(wType, 0);
+                    msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-red-950/90 text-red-400 border border-red-600";
+                    msgBox.innerText = `💥 콰광!! 무기가 부서져 [+0 ${baseDisplayName}](으)로 초기화되었습니다!`;
+                }
+                shakeShowcase();
+            }
+
+            updateForgeUI();
+            updateHUD();
+        }
+
+        function shakeShowcase() {
+            const el = document.getElementById('weapon-showcase');
+            el.classList.remove('shake-anim');
+            void el.offsetWidth;
+            el.classList.add('shake-anim');
+        }
+
+        function renderWeaponSVG(type, level) {
+            const tier = getTierInfo(level);
+            const p = tier.primary;
+            const s = tier.secondary;
+            const aura = tier.auraCore;
+
+            const highTierExtras = `
+                ${level >= 21 ? `<circle cx="60" cy="60" r="59" fill="none" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="2 4" class="aura-ring-spin"/>` : ''}
+                ${level >= 34 ? `<polygon points="60,2 64,12 56,12" fill="#ffffff" class="aura-ring-reverse"/><polygon points="60,118 64,108 56,108" fill="#ffffff" class="aura-ring-reverse"/><polygon points="2,60 12,56 12,64" fill="#ffffff" class="aura-ring-reverse"/><polygon points="118,60 108,56 108,64" fill="#ffffff" class="aura-ring-reverse"/>` : ''}
+                ${level >= 46 ? `<circle cx="60" cy="60" r="50" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6 4" class="aura-ring-spin"/>` : ''}
+                ${level >= 50 ? `<circle cx="60" cy="60" r="46" fill="rgba(9,13,22,0.65)" stroke="#a855f7" stroke-width="2.5"/><circle cx="60" cy="60" r="58" fill="none" stroke="#4c1d95" stroke-width="3" stroke-dasharray="12 4" class="aura-ring-reverse"/>` : ''}
+            `;
+
+            if (type === 'sword') {
+                return `<svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+                    ${level >= 1 ? `<circle cx="60" cy="60" r="44" fill="${aura}" stroke="${p}" stroke-width="1.5" stroke-dasharray="5 5" class="aura-ring-spin"/>` : ''}
+                    ${level >= 10 ? `<circle cx="60" cy="60" r="52" fill="none" stroke="${s}" stroke-width="1.8" stroke-dasharray="10 6" opacity="0.85" class="aura-ring-reverse"/>` : ''}
+                    ${level >= 14 ? `<polygon points="60,6 65,15 55,15" fill="${p}" class="aura-ring-spin"/><polygon points="60,114 65,105 55,105" fill="${s}" class="aura-ring-spin"/>` : ''}
+                    ${level >= 18 ? `<circle cx="60" cy="60" r="57" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="3 7" class="aura-ring-reverse"/>` : ''}
+                    ${highTierExtras}
+                    <path d="M 88 22 L 98 32 L 48 82 L 38 72 Z" fill="${p}" stroke="#fff" stroke-width="1.2"/>
+                    <path d="M 88 22 L 102 18 L 98 32 Z" fill="${s}"/>
+                    <line x1="86" y1="34" x2="46" y2="74" stroke="#fff" stroke-width="2.2" opacity="0.8"/>
+                    <path d="M 28 65 L 55 92 L 50 97 L 23 70 Z" fill="#f59e0b" stroke="#78350f" stroke-width="1.5"/>
+                    <line x1="36" y1="84" x2="20" y2="100" stroke="#78350f" stroke-width="7" stroke-linecap="round"/>
+                    <circle cx="18" cy="102" r="5.5" fill="${p}" stroke="#f59e0b" stroke-width="1.5"/>
+                </svg>`;
+            } else if (type === 'bow') {
+                return `<svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+                    ${level >= 1 ? `<circle cx="60" cy="60" r="44" fill="${aura}" stroke="${p}" stroke-width="1.5" stroke-dasharray="5 5" class="aura-ring-spin"/>` : ''}
+                    ${level >= 10 ? `<circle cx="60" cy="60" r="52" fill="none" stroke="${s}" stroke-width="1.8" stroke-dasharray="8 6" opacity="0.85" class="aura-ring-reverse"/>` : ''}
+                    ${level >= 14 ? `<circle cx="106" cy="60" r="4" fill="${p}"/><circle cx="14" cy="60" r="4" fill="${s}"/>` : ''}
+                    ${level >= 18 ? `<circle cx="60" cy="60" r="57" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="3 7" class="aura-ring-reverse"/>` : ''}
+                    ${highTierExtras}
+                    <line x1="30" y1="22" x2="30" y2="98" stroke="#e2e8f0" stroke-width="1.5"/>
+                    <path d="M 30 22 Q 95 60 30 98" fill="none" stroke="${p}" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M 30 22 Q 95 60 30 98" fill="none" stroke="#fff" stroke-width="1.6" opacity="0.7"/>
+                    <rect x="58" y="53" width="8" height="14" rx="2" fill="#f59e0b"/>
+                    <line x1="22" y1="60" x2="98" y2="60" stroke="${s}" stroke-width="3.5"/>
+                    <polygon points="104,60 90,53 93,60 90,67" fill="${p}"/>
+                </svg>`;
+            } else {
+                return `<svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+                    ${level >= 1 ? `<circle cx="60" cy="60" r="44" fill="${aura}" stroke="${p}" stroke-width="1.5" stroke-dasharray="6 4" class="aura-ring-spin"/>` : ''}
+                    ${level >= 10 ? `<circle cx="60" cy="60" r="52" fill="none" stroke="${s}" stroke-width="1.8" stroke-dasharray="10 5" opacity="0.85" class="aura-ring-reverse"/>` : ''}
+                    ${level >= 14 ? `<polygon points="60,8 65,17 55,17" fill="${p}"/><polygon points="60,112 65,103 55,103" fill="${s}"/>` : ''}
+                    ${level >= 18 ? `<circle cx="60" cy="60" r="57" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="3 7" class="aura-ring-reverse"/>` : ''}
+                    ${highTierExtras}
+                    <line x1="20" y1="100" x2="88" y2="32" stroke="#92400e" stroke-width="5" stroke-linecap="round"/>
+                    <polygon points="104,16 82,28 92,38" fill="${p}" stroke="#fff" stroke-width="1.2"/>
+                    <path d="M 75 30 Q 95 45 85 65 Q 72 50 68 42 Z" fill="${p}" stroke="#fff" stroke-width="1.2"/>
+                    <path d="M 72 34 L 58 24 L 66 38 Z" fill="${s}"/>
+                </svg>`;
+            }
+        }
+
+        function updateForgeUI() {
+            const wType = player.currentWeapon;
+            const wLv = player.weapons[wType].level;
+            const wInfo = WEAPON_DATA[wType];
+            const tier = getTierInfo(wLv);
+            const displayName = getWeaponDisplayName(wType, wLv);
+
+            const badge = document.getElementById('weapon-tier-badge');
+            badge.innerText = tier.tierName;
+            badge.className = `text-xs font-bold px-2.5 py-0.5 rounded-full ${tier.badgeClass}`;
+
+            document.getElementById('weapon-level-badge').innerText = `+${wLv}`;
+            document.getElementById('weapon-level-badge').style.color = tier.primary;
+
+            const svgBox = document.getElementById('weapon-svg-container');
+            svgBox.className = `w-32 h-32 flex items-center justify-center my-1 transition-all duration-300 ${tier.glowClass}`;
+            svgBox.innerHTML = renderWeaponSVG(wType, wLv);
+
+            document.getElementById('weapon-name').innerText = `+${wLv} ${displayName}`;
+            document.getElementById('weapon-name').style.color = tier.primary;
+            document.getElementById('weapon-desc').innerText = wInfo.desc;
+            document.getElementById('weapon-bonus-atk').innerText = getWeaponAtk(wType).toLocaleString();
+            document.getElementById('forge-gold').innerText = `${player.gold.toLocaleString()} G`;
+
+            // 방지권 보유 개수 및 On/Off 버튼 스타일 갱신
+            document.getElementById('downgrade-scroll-count').innerText = `${player.scrolls.downgrade}개`;
+            document.getElementById('destroy-scroll-count').innerText = `${player.scrolls.destroy}개`;
+
+            const dgBtn = document.getElementById('toggle-downgrade-btn');
+            if (player.scrollActive.downgrade) {
+                dgBtn.innerText = "ON";
+                dgBtn.className = "px-2.5 py-1.5 rounded-lg text-[11px] font-black border transition bg-amber-500 text-slate-950 border-amber-300 shadow";
+            } else {
+                dgBtn.innerText = "OFF";
+                dgBtn.className = "px-2.5 py-1.5 rounded-lg text-[11px] font-black border transition bg-slate-950 text-slate-500 border-slate-700";
+            }
+
+            const dsBtn = document.getElementById('toggle-destroy-btn');
+            if (player.scrollActive.destroy) {
+                dsBtn.innerText = "ON";
+                dsBtn.className = "px-2.5 py-1.5 rounded-lg text-[11px] font-black border transition bg-rose-500 text-white border-rose-300 shadow";
+            } else {
+                dsBtn.innerText = "OFF";
+                dsBtn.className = "px-2.5 py-1.5 rounded-lg text-[11px] font-black border transition bg-slate-950 text-slate-500 border-slate-700";
+            }
+
+            const btn = document.getElementById('enhance-btn');
+            if (wLv >= BASE_FORGE_MAX) {
+                document.getElementById('next-success-rate').innerText = wLv >= MAX_ENHANCE_LEVEL ? "MAX" : "추가강화소 이용";
+                btn.innerHTML = wLv >= MAX_ENHANCE_LEVEL
+                    ? `<span>👑 최종 경지(+60강) 달성</span>`
+                    : `<span>🔮 50강 돌파! 우측 상단 [추가강화소] 이용</span>`;
+                btn.disabled = true;
+            } else {
+                const rule = ENHANCE_TABLE[wLv];
+                const displayRate = player.devSettings.alwaysSuccess ? "100% (DEV)" : `${rule.success}%`;
+                document.getElementById('next-success-rate').innerText = displayRate;
+                btn.disabled = false;
+                btn.innerHTML = `<span>🔥 강화하기 (${rule.cost.toLocaleString()} G)</span>`;
+            }
+        }
+
+        /* ==========================================================================
+           4-1B. 무기 추가강화소 (50강 -> 60강 초월 제련)
+           ========================================================================== */
+        function openExtraForgeModal() {
+            if (player.level < 100 && player.world < 2 && player.weapons[player.currentWeapon].level < 50) {
+                showToast('🔮 Lv.100 달성(2세계 개방) 또는 50강 무기 보유 시 추가강화소를 이용할 수 있습니다!', 'bg-cyan-950/95 border-cyan-400 text-cyan-200');
+                return;
+            }
+            updateExtraForgeUI();
+            document.getElementById('extra-forge-modal').classList.replace('hidden', 'flex');
+        }
+        function closeExtraForgeModal() {
+            document.getElementById('extra-forge-modal').classList.replace('flex', 'hidden');
+        }
+
+        function updateExtraForgeUI() {
+            const wType = player.currentWeapon;
+            const wLv = player.weapons[wType].level;
+            const tier = getTierInfo(wLv);
+            const displayName = getWeaponDisplayName(wType, wLv);
+
+            const badge = document.getElementById('extra-tier-badge');
+            badge.innerText = tier.tierName;
+            badge.className = `text-xs font-bold px-2.5 py-0.5 rounded-full ${tier.badgeClass}`;
+
+            document.getElementById('extra-level-badge').innerText = `+${wLv}`;
+            document.getElementById('extra-level-badge').style.color = tier.primary;
+
+            const svgBox = document.getElementById('extra-svg-container');
+            svgBox.className = `w-32 h-32 flex items-center justify-center my-1 transition-all duration-300 ${tier.glowClass}`;
+            svgBox.innerHTML = renderWeaponSVG(wType, wLv);
+
+            document.getElementById('extra-weapon-name').innerText = `+${wLv} ${displayName}`;
+            document.getElementById('extra-weapon-name').style.color = tier.primary;
+            document.getElementById('extra-weapon-atk').innerText = getWeaponAtk(wType).toLocaleString();
+            document.getElementById('extra-gold').innerText = `${player.gold.toLocaleString()} G`;
+
+            document.getElementById('extra-dg-count').innerText = player.scrolls.downgrade;
+            document.getElementById('extra-ds-count').innerText = player.scrolls.destroy;
+
+            const dgBtn = document.getElementById('extra-toggle-dg');
+            dgBtn.innerText = player.scrollActive.downgrade ? "ON" : "OFF";
+            dgBtn.className = player.scrollActive.downgrade
+                ? "px-2 py-1 rounded text-[11px] font-black border bg-amber-500 text-slate-950 border-amber-300"
+                : "px-2 py-1 rounded text-[11px] font-black border bg-slate-900 text-slate-500 border-slate-700";
+
+            const dsBtn = document.getElementById('extra-toggle-ds');
+            dsBtn.innerText = player.scrollActive.destroy ? "ON" : "OFF";
+            dsBtn.className = player.scrollActive.destroy
+                ? "px-2 py-1 rounded text-[11px] font-black border bg-rose-500 text-white border-rose-300"
+                : "px-2 py-1 rounded text-[11px] font-black border bg-slate-900 text-slate-500 border-slate-700";
+
+            const btn = document.getElementById('extra-enhance-btn');
+            if (wLv < BASE_FORGE_MAX) {
+                document.getElementById('extra-success-rate').innerText = "50강 필요";
+                btn.innerHTML = `<span>⚠️ 일반 대장간에서 먼저 +50강을 달성하세요 (현재 +${wLv})</span>`;
+                btn.disabled = true;
+            } else if (wLv >= MAX_ENHANCE_LEVEL) {
+                document.getElementById('extra-success-rate').innerText = "MAX";
+                btn.innerHTML = `<span>👑 창세의 신기 (+60강) 완성</span>`;
+                btn.disabled = true;
+            } else {
+                const rule = ENHANCE_TABLE[wLv];
+                const displayRate = player.devSettings.alwaysSuccess ? "100% (DEV)" : `${rule.success}%`;
+                document.getElementById('extra-success-rate').innerText = displayRate;
+                btn.disabled = false;
+                btn.innerHTML = `<span>🔮 초월 제련하기 (${rule.cost.toLocaleString()} G)</span>`;
+            }
+        }
+
+        function enhanceExtraWeapon() {
+            const wType = player.currentWeapon;
+            const currentLv = player.weapons[wType].level;
+            const msgBox = document.getElementById('extra-result-msg');
+            if (currentLv < BASE_FORGE_MAX || currentLv >= MAX_ENHANCE_LEVEL) return;
+
+            const rule = ENHANCE_TABLE[currentLv];
+            if (player.gold < rule.cost) {
+                msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-rose-950/80 text-rose-400 border border-rose-700";
+                msgBox.innerText = `❌ 골드가 부족합니다! (필요: ${rule.cost.toLocaleString()} G)`;
+                return;
+            }
+
+            player.gold -= rule.cost;
+            const roll = Math.random() * 100;
+            const pSuccess = player.devSettings.alwaysSuccess ? 100 : rule.success;
+            const pFail = pSuccess + rule.fail;
+            const pDowngrade = pFail + rule.downgrade;
+            const wName = getWeaponDisplayName(wType, currentLv);
+
+            if (roll < pSuccess) {
+                player.weapons[wType].level += 1;
+                const newLv = player.weapons[wType].level;
+                msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-cyan-950/90 text-cyan-300 border border-cyan-400";
+                msgBox.innerText = `✨ 초월 제련 성공!! [+${newLv} ${getWeaponDisplayName(wType, newLv)}] 탄생!`;
+            } else if (roll < pFail) {
+                msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-slate-900 text-slate-300 border border-slate-600";
+                msgBox.innerText = `💨 제련 실패... [+${currentLv} ${wName}] 등급이 유지되었습니다.`;
+            } else if (roll < pDowngrade) {
+                if (player.scrollActive.downgrade && player.scrolls.downgrade > 0) {
+                    player.scrolls.downgrade -= 1;
+                    if (player.scrolls.downgrade === 0) player.scrollActive.downgrade = false;
+                    msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-amber-950/90 text-amber-300 border border-amber-500";
+                    msgBox.innerText = `🛡️ 하락 방지권 발동! [+${currentLv} ${wName}] 등급 하락을 막았습니다!`;
+                } else {
+                    player.weapons[wType].level -= 1;
+                    const newLv = player.weapons[wType].level;
+                    msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-amber-950/80 text-amber-400 border border-amber-600";
+                    msgBox.innerText = `🔻 제련 반동으로 [+${newLv} ${getWeaponDisplayName(wType, newLv)}](으)로 하락했습니다.`;
+                }
+            } else {
+                if (player.scrollActive.destroy && player.scrolls.destroy > 0) {
+                    player.scrolls.destroy -= 1;
+                    if (player.scrolls.destroy === 0) player.scrollActive.destroy = false;
+                    msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-rose-950/90 text-rose-300 border border-rose-500";
+                    msgBox.innerText = `💎 균열 방지권 발동! [+${currentLv} ${wName}] 신기가 파괴되지 않았습니다!`;
+                } else {
+                    player.weapons[wType].level = 0;
+                    msgBox.className = "text-center text-xs sm:text-sm font-bold py-2 px-3 rounded-lg bg-red-950/90 text-red-400 border border-red-600";
+                    msgBox.innerText = `💥 콰광!! 초월 제련 폭주로 무기가 부서져 +0강으로 초기화되었습니다!`;
+                }
+            }
+            updateExtraForgeUI();
+            updateForgeUI();
+            updateHUD();
+        }
+
+        /* ==========================================================================
+           4-2. 개발자 설정 콘솔 & 커맨드 핸들러
+           ========================================================================== */
+        function openDevModal() {
+            updateDevUI();
+            document.getElementById('dev-modal').classList.replace('hidden', 'flex');
+        }
+        function closeDevModal() {
+            document.getElementById('dev-modal').classList.replace('flex', 'hidden');
+        }
+
+        function setDevMsg(text) {
+            document.getElementById('dev-status-msg').innerText = text;
+        }
+
+        function updateDevUI() {
+            const btn = document.getElementById('dev-always-success-btn');
+            if (player.devSettings.alwaysSuccess) {
+                btn.innerText = "ON (100%)";
+                btn.className = "px-3 py-1.5 rounded-lg text-xs font-black border transition bg-emerald-500 text-slate-950 border-emerald-300 shadow";
+            } else {
+                btn.innerText = "OFF";
+                btn.className = "px-3 py-1.5 rounded-lg text-xs font-black border transition bg-slate-950 text-slate-400 border-slate-700";
+            }
+        }
+
+        function toggleDevAlwaysSuccess() {
+            player.devSettings.alwaysSuccess = !player.devSettings.alwaysSuccess;
+            updateDevUI();
+            updateForgeUI();
+            setDevMsg(player.devSettings.alwaysSuccess ? "⚡ 강화 무조건 성공(100%)이 활성화되었습니다!" : "강화 확률이 정상 확률표로 복구되었습니다.");
+        }
+
+        function devSetWeaponLv(targetLv) {
+            const wType = player.currentWeapon;
+            player.weapons[wType].level = Math.max(0, Math.min(MAX_ENHANCE_LEVEL, targetLv));
+            const name = getWeaponDisplayName(wType, player.weapons[wType].level);
+            updateForgeUI();
+            updateExtraForgeUI();
+            updateHUD();
+            setDevMsg(`🗡️ [${name} +${player.weapons[wType].level}강]으로 즉시 설정했습니다!`);
+        }
+
+        function devAddGold(amount) {
+            player.gold += amount;
+            updateForgeUI();
+            updateExtraForgeUI();
+            updateStatUI();
+            updateHUD();
+            setDevMsg(`💰 ${amount.toLocaleString()} G가 지급되었습니다!`);
+        }
+
+        function devAddSupplies() {
+            player.potions += 10;
+            player.scrolls.downgrade += 10;
+            player.scrolls.destroy += 10;
+            updateForgeUI();
+            updateHUD();
+            setDevMsg("🛡️ 포션 10개, 하락 방지권 10개, 균열 방지권 10개를 지급했습니다!");
+        }
+
+        function devLevelUp(count) {
+            for (let i = 0; i < count; i++) {
+                if (player.level >= 250) break;
+                gainExp(player.maxExp - player.exp);
+            }
+            updateHUD();
+            setDevMsg(`⬆️ 현재 레벨이 Lv.${player.level}이 되었습니다!`);
+        }
+
+        function devFullHeal() {
+            player.hp = player.maxHp;
+            updateHUD();
+            setDevMsg("❤️ HP가 100% 회복되었습니다!");
+        }
+
+        function runDevCommand() {
+            const input = document.getElementById('dev-cmd-input');
+            const raw = (input.value || '').trim();
+            if (!raw) return;
+
+            // 띄어쓰기 형태("/gold 50000")와 붙여쓰기 형태("/gold50000", "gold50000") 모두 지원
+            const normalized = raw.replace(/^\/?([a-zA-Z]+)(\d+)$/, '$1 $2').replace(/^\//, '');
+            const parts = normalized.split(/\s+/);
+            const cmd = (parts[0] || '').toLowerCase();
+            const arg = Number(parts[1]);
+
+            if (cmd === 'dev') {
+                setDevMsg("🛠️ 개발자 콘솔이 열려 있습니다.");
+            } else if (cmd === 'max60' || cmd === '60') {
+                devSetWeaponLv(60);
+            } else if (cmd === 'max50' || cmd === '50' || cmd === 'max20') {
+                devSetWeaponLv(50);
+            } else if (cmd === 'w2' || cmd === 'world2') {
+                if (player.level < 100) devLevelUp(100 - player.level);
+                switchWorld(2);
+                closeDevModal();
+            } else if (cmd === 'w1' || cmd === 'world1') {
+                switchWorld(1);
+                closeDevModal();
+            } else if (cmd === 'lvup' || cmd === 'up') {
+                const upCount = Number.isFinite(arg) && arg > 0 ? arg : 1;
+                devLevelUp(upCount);
+            } else if (cmd === 'gold') {
+                devAddGold(Number.isFinite(arg) && arg > 0 ? arg : 5000000);
+            } else if (cmd === 'lv' || cmd === 'level') {
+                if (Number.isFinite(arg) && arg >= 1 && arg <= 250) {
+                    const prevLv = player.level;
+                    player.level = arg;
+                    player.maxExp = Math.floor(100 * Math.pow(1.24, player.level - 1));
+                    player.exp = 0;
+                    player.maxHp = 100 + (player.level - 1) * 30;
+                    player.hp = player.maxHp;
+                    player.baseAtk = 6 + (player.level - 1) * 5;
+                    updateHUD();
+                    if (prevLv < 100 && player.level >= 100) {
+                        showToast('🌀 Lv.100 달성! 시작의 마을에 [2세계 차원문]이 열렸습니다!', 'bg-cyan-950/95 border-cyan-400 text-cyan-200');
+                    }
+                    setDevMsg(`⬆️ 레벨이 Lv.${player.level}로 설정되었습니다!`);
+                } else {
+                    devLevelUp(10);
+                }
+            } else if (cmd === 'heal') {
+                devFullHeal();
+            } else if (cmd === 'win' || cmd === 'success') {
+                if (!player.devSettings.alwaysSuccess) toggleDevAlwaysSuccess();
+            } else {
+                setDevMsg(`❓ 알 수 없는 커맨드: ${raw}`);
+            }
+            input.value = '';
+        }
+
+        function openForgeModal() {
+            updateForgeUI();
+            document.getElementById('forge-modal').classList.replace('hidden', 'flex');
+        }
+        function closeForgeModal() {
+            document.getElementById('forge-modal').classList.replace('flex', 'hidden');
+        }
+
+        function openProbModal() {
+            document.getElementById('prob-modal').classList.replace('hidden', 'flex');
+        }
+        function closeProbModal() {
+            document.getElementById('prob-modal').classList.replace('flex', 'hidden');
+        }
+
+        /* ==========================================================================
+           4-1C. 일반 게임 설정 모달 핸들러
+           ========================================================================== */
+        function openSettingsModal() {
+            updateGameSettingsUI();
+            document.getElementById('settings-modal').classList.replace('hidden', 'flex');
+        }
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.replace('flex', 'hidden');
+        }
+
+        function updateGameSettingsUI() {
+            const pairs = [
+                { key: 'showDamageText', id: 'setting-dmg-btn', label: '데미지 숫자 표시' },
+                { key: 'showToasts', id: 'setting-toast-btn', label: '전투 알림 표시' },
+                { key: 'showMinimap', id: 'setting-minimap-btn', label: '미니맵 표시' }
+            ];
+            pairs.forEach(item => {
+                const btn = document.getElementById(item.id);
+                const enabled = Boolean(player.gameSettings[item.key]);
+                if (enabled) {
+                    btn.innerText = "ON";
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-black border transition bg-emerald-500 text-slate-950 border-emerald-300";
+                } else {
+                    btn.innerText = "OFF";
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-black border transition bg-slate-950 text-slate-500 border-slate-700";
+                }
+            });
+
+            const miniPanel = document.getElementById('minimap-panel');
+            if (miniPanel) {
+                miniPanel.style.display = player.gameSettings.showMinimap ? '' : 'none';
+            }
+        }
+
+        function toggleGameSetting(key) {
+            player.gameSettings[key] = !player.gameSettings[key];
+            updateGameSettingsUI();
+            const statusEl = document.getElementById('settings-status-msg');
+            if (statusEl) {
+                statusEl.innerText = `설정이 ${player.gameSettings[key] ? '활성화(ON)' : '비활성화(OFF)'} 되었습니다.`;
+            }
+        }
+
+        function teleportToTown() {
+            player.x = TOWN_CENTER.x;
+            player.y = TOWN_CENTER.y;
+            for (const m of monsters) {
+                m.aggroTimer = 0;
+            }
+            closeSettingsModal();
+            showToast('🏡 안전지대 마을로 귀환했습니다.', 'bg-emerald-950/95 border-emerald-400 text-emerald-200');
+        }
+
+        function resetGameProgress() {
+            stopAutoStat();
+            player.world = 1;
+            player.x = TOWN_CENTER.x;
+            player.y = TOWN_CENTER.y;
+            player.level = 1;
+            player.exp = 0;
+            player.maxExp = 100;
+            player.hp = 100;
+            player.maxHp = 100;
+            player.baseAtk = 6;
+            player.speed = 270;
+            player.rangeMultiplier = 1.0;
+            player.statUpgrades = {
+                atkLevel: 0, atkCost: 100,
+                hpLevel: 0, hpCost: 100,
+                spdLevel: 0, spdCost: 120,
+                rngLevel: 0, rngCost: 150
+            };
+            player.gold = 500;
+            player.potions = 3;
+            player.scrolls = { downgrade: 0, destroy: 0 };
+            player.scrollActive = { downgrade: false, destroy: false };
+            player.currentWeapon = 'sword';
+            player.weapons = {
+                sword: { level: 0 },
+                bow: { level: 0 },
+                polearm: { level: 0 }
+            };
+            buildWorldEntities();
+            updateHUD();
+            updateForgeUI();
+            updateStatUI();
+            closeSettingsModal();
+            showToast('🔄 캐릭터와 월드가 초기 상태로 재설정되었습니다.', 'bg-amber-950/95 border-amber-400 text-amber-200');
+        }
+
+        /* ==========================================================================
+           4-1. 캐릭터 기본 스탯(공격력 / 체력 / 이동속도 / 공격범위) 골드 강화 & 연속강화 시스템
+           ========================================================================== */
+        let autoStatTimer = null;
+        let autoStatType = null;
+
+        function getNextStatValue(currentVal, mult = 1.1) {
+            const multiplied = Math.floor(currentVal * mult);
+            return multiplied > currentVal ? multiplied : currentVal + 1;
+        }
+
+        function getNextRangeMult(currentMult) {
+            return Math.round(currentMult * 1.07 * 100) / 100;
+        }
+
+        function stopAutoStat() {
+            if (autoStatTimer) {
+                clearInterval(autoStatTimer);
+                autoStatTimer = null;
+            }
+            autoStatType = null;
+            updateAutoStatButtons();
+        }
+
+        function toggleAutoStat(type) {
+            if (autoStatType === type) {
+                stopAutoStat();
+                const msgBox = document.getElementById('stat-result-msg');
+                msgBox.className = "text-center text-xs font-bold py-2 px-3 rounded-lg bg-slate-900/80 text-slate-300 border border-slate-700/60";
+                msgBox.innerText = "⏹️ 연속강화가 정지되었습니다.";
+                return;
+            }
+            stopAutoStat();
+            autoStatType = type;
+            updateAutoStatButtons();
+
+            // 누른 즉시 1회 실행 후 0.05초(50ms)마다 연속 강화
+            if (!upgradeStat(type)) {
+                stopAutoStat();
+                return;
+            }
+            autoStatTimer = setInterval(() => {
+                if (!upgradeStat(type)) {
+                    stopAutoStat();
+                }
+            }, 50);
+        }
+
+        function updateAutoStatButtons() {
+            const configs = [
+                { type: 'atk', idleClass: 'bg-slate-800 hover:bg-slate-700 border border-rose-500/50 text-rose-300' },
+                { type: 'hp',  idleClass: 'bg-slate-800 hover:bg-slate-700 border border-emerald-500/50 text-emerald-300' },
+                { type: 'spd', idleClass: 'bg-slate-800 hover:bg-slate-700 border border-sky-500/50 text-sky-300' },
+                { type: 'rng', idleClass: 'bg-slate-800 hover:bg-slate-700 border border-amber-500/50 text-amber-300' }
+            ];
+            configs.forEach(cfg => {
+                const btn = document.getElementById(`auto-stat-${cfg.type}-btn`);
+                if (!btn) return;
+                if (autoStatType === cfg.type) {
+                    btn.innerText = "⏹️ 스톱";
+                    btn.className = "bg-rose-600 hover:bg-rose-500 border border-rose-300 text-white font-black px-2.5 py-2 rounded-xl transition text-xs animate-pulse shadow";
+                } else {
+                    btn.innerText = "⚡ 연속강화";
+                    btn.className = `${cfg.idleClass} font-black px-2.5 py-2 rounded-xl transition text-xs`;
+                }
+            });
+        }
+
+        function upgradeStat(type) {
+            const msgBox = document.getElementById('stat-result-msg');
+            if (type === 'atk') {
+                const cost = player.statUpgrades.atkCost;
+                if (player.gold < cost) {
+                    msgBox.className = "text-center text-xs font-bold py-2 px-3 rounded-lg bg-rose-950/80 text-rose-400 border border-rose-700";
+                    msgBox.innerText = `❌ 골드가 부족합니다! (필요 골드: ${cost.toLocaleString()} G)`;
+                    return false;
+                }
+                player.gold -= cost;
+                player.statUpgrades.atkLevel += 1;
+                player.baseAtk = getNextStatValue(player.baseAtk, 1.1);
+                player.statUpgrades.atkCost = Math.floor(cost * 1.5);
+
+                msgBox.className = "text-center text-xs font-bold py-2 px-3 rounded-lg bg-rose-950/80 text-rose-300 border border-rose-500";
+                msgBox.innerText = `⚔️ 기본 공격력 강화 성공! (Lv.${player.statUpgrades.atkLevel} 달성, 기본 공격력 ${player.baseAtk})`;
+            } else if (type === 'hp') {
+                const cost = player.statUpgrades.hpCost;
+                if (player.gold < cost) {
+                    msgBox.className = "text-center text-xs font-bold py-2 px-3 rounded-lg bg-rose-950/80 text-rose-400 border border-rose-700";
+                    msgBox.innerText = `❌ 골드가 부족합니다! (필요 골드: ${cost.toLocaleString()} G)`;
+                    return false;
+                }
+                player.gold -= cost;
+                player.statUpgrades.hpLevel += 1;
+                const oldMaxHp = player.maxHp;
+                player.maxHp = getNextStatValue(player.maxHp, 1.1);
+                player.hp += (player.maxHp - oldMaxHp);
+                player.statUpgrades.hpCost = Math.floor(cost * 1.5);
+
+                msgBox.className = "text-center text-xs font-bold py-2 px-3 rounded-lg bg-emerald-950/80 text-emerald-300 border border-emerald-500";
+                msgBox.innerText = `❤️ 최대 체력 강화 성공! (Lv.${player.statUpgrades.hpLevel} 달성, 최대 HP ${player.maxHp})`;
+            } else if (type === 'spd') {
+                const cost = player.statUpgrades.spdCost;
+                if (player.gold < cost) {
+                    msgBox.className = "text-center text-xs font-bold py-2 px-3 rounded-lg bg-rose-950/80 text-rose-400 border border-rose-700";
+                    msgBox.innerText = `❌ 골드가 부족합니다! (필요 골드: ${cost.toLocaleString()} G)`;
+                    return false;
+                }
+                player.gold -= cost;
+                player.statUpgrades.spdLevel += 1;
+                player.speed = getNextStatValue(player.speed, 1.06);
+                player.statUpgrades.spdCost = Math.floor(cost * 1.5);
+
+                msgBox.className = "text-center text-xs font-bold py-2 px-3 rounded-lg bg-sky-950/80 text-sky-300 border border-sky-500";
+                msgBox.innerText = `💨 이동속도 강화 성공! (Lv.${player.statUpgrades.spdLevel} 달성, 이동속도 ${player.speed})`;
+            } else if (type === 'rng') {
+                const cost = player.statUpgrades.rngCost;
+                if (player.gold < cost) {
+                    msgBox.className = "text-center text-xs font-bold py-2 px-3 rounded-lg bg-rose-950/80 text-rose-400 border border-rose-700";
+                    msgBox.innerText = `❌ 골드가 부족합니다! (필요 골드: ${cost.toLocaleString()} G)`;
+                    return false;
+                }
+                player.gold -= cost;
+                player.statUpgrades.rngLevel += 1;
+                player.rangeMultiplier = getNextRangeMult(player.rangeMultiplier);
+                player.statUpgrades.rngCost = Math.floor(cost * 1.5);
+
+                const curBowRange = getWeaponRange('bow');
+                msgBox.className = "text-center text-xs font-bold py-2 px-3 rounded-lg bg-amber-950/80 text-amber-300 border border-amber-500";
+                msgBox.innerText = `🏹 공격범위 강화 성공! (Lv.${player.statUpgrades.rngLevel}, 활 사거리 ${curBowRange})`;
+            }
+            updateStatUI();
+            updateHUD();
+            return true;
+        }
+
+        function updateStatUI() {
+            document.getElementById('stat-modal-gold').innerText = player.gold.toLocaleString();
+
+            document.getElementById('stat-atk-lv').innerText = `Lv.${player.statUpgrades.atkLevel}`;
+            document.getElementById('stat-atk-val').innerText = player.baseAtk.toLocaleString();
+            document.getElementById('stat-atk-next').innerText = getNextStatValue(player.baseAtk, 1.1).toLocaleString();
+            document.getElementById('stat-atk-cost').innerText = player.statUpgrades.atkCost.toLocaleString();
+
+            document.getElementById('stat-hp-lv').innerText = `Lv.${player.statUpgrades.hpLevel}`;
+            document.getElementById('stat-hp-val').innerText = player.maxHp.toLocaleString();
+            document.getElementById('stat-hp-next').innerText = getNextStatValue(player.maxHp, 1.1).toLocaleString();
+            document.getElementById('stat-hp-cost').innerText = player.statUpgrades.hpCost.toLocaleString();
+
+            document.getElementById('stat-spd-lv').innerText = `Lv.${player.statUpgrades.spdLevel}`;
+            document.getElementById('stat-spd-val').innerText = player.speed.toLocaleString();
+            document.getElementById('stat-spd-next').innerText = getNextStatValue(player.speed, 1.06).toLocaleString();
+            document.getElementById('stat-spd-cost').innerText = player.statUpgrades.spdCost.toLocaleString();
+
+            const nextRngMult = getNextRangeMult(player.rangeMultiplier);
+            document.getElementById('stat-rng-lv').innerText = `Lv.${player.statUpgrades.rngLevel}`;
+            document.getElementById('stat-rng-val').innerText = `${Math.round(player.rangeMultiplier * 100)}% (활 ${getWeaponRange('bow')})`;
+            document.getElementById('stat-rng-next').innerText = `${Math.round(nextRngMult * 100)}%`;
+            document.getElementById('stat-rng-cost').innerText = player.statUpgrades.rngCost.toLocaleString();
+        }
+
+        function openStatModal() {
+            updateStatUI();
+            document.getElementById('stat-modal').classList.replace('hidden', 'flex');
+        }
+        function closeStatModal() {
+            stopAutoStat();
+            document.getElementById('stat-modal').classList.replace('flex', 'hidden');
+        }
+
+        function renderProbTable() {
+            const tbody = document.getElementById('prob-table-body');
+            tbody.innerHTML = ENHANCE_TABLE.map(row => {
+                let c = "text-slate-200";
+                if (row.target <= 9) c = "text-emerald-400 font-bold";
+                else if (row.target <= 13) c = "text-blue-400 font-bold";
+                else if (row.target <= 17) c = "text-purple-400 font-bold";
+                else if (row.target <= 20) c = "text-red-400 font-bold";
+                else if (row.target <= 33) c = "text-slate-300 font-bold";
+                else if (row.target <= 45) c = "text-white font-bold";
+                else if (row.target <= 49) c = "text-amber-300 font-black";
+                else if (row.target === 50) c = "text-purple-400 font-black";
+                else if (row.target <= 55) c = "text-cyan-300 font-black";
+                else c = "text-amber-300 font-black";
+
+                return `<tr class="hover:bg-slate-700/40">
+                    <td class="py-2 px-2 ${c}">+${row.target - 1} ➔ +${row.target}강</td>
+                    <td class="py-2 px-2 text-emerald-400 font-bold">${row.success}%</td>
+                    <td class="py-2 px-2 text-slate-400">${row.fail}%</td>
+                    <td class="py-2 px-2 text-amber-400">${row.downgrade > 0 ? row.downgrade + '%' : '-'}</td>
+                    <td class="py-2 px-2 text-rose-500 font-bold">${row.destroy > 0 ? row.destroy + '%' : '-'}</td>
+                    <td class="py-2 px-2 text-yellow-300">${row.cost.toLocaleString()} G</td>
+                </tr>`;
+            }).join('');
+        }
+
+        /* ==========================================================================
+           5. 게임 메인 루프 (업데이트 & 오픈월드 캔버스 렌더링)
+           ========================================================================== */
+        function update(dt) {
+            // 1. 플레이어 이동 처리
+            let vx = 0, vy = 0;
+            if (keys.w || keys.ArrowUp) vy -= 1;
+            if (keys.s || keys.ArrowDown) vy += 1;
+            if (keys.a || keys.ArrowLeft) vx -= 1;
+            if (keys.d || keys.ArrowRight) vx += 1;
+
+            if (vx !== 0 || vy !== 0) {
+                const len = Math.hypot(vx, vy);
+                vx /= len;
+                vy /= len;
+                player.x = Math.max(30, Math.min(WORLD_SIZE - 30, player.x + vx * player.speed * dt));
+                player.y = Math.max(30, Math.min(WORLD_SIZE - 30, player.y + vy * player.speed * dt));
+                player.angle = Math.atan2(vy, vx);
+            }
+
+            if (player.swingTimer > 0) player.swingTimer -= dt;
+            if (player.invulnTimer > 0) player.invulnTimer -= dt;
+
+            // 2. 마을 안전지대 체력 자동 회복
+            const distToTown = Math.hypot(player.x - TOWN_CENTER.x, player.y - TOWN_CENTER.y);
+            if (distToTown <= TOWN_CENTER.radius && player.hp < player.maxHp) {
+                player.hp = Math.min(player.maxHp, player.hp + player.maxHp * 0.25 * dt);
+            }
+
+            // 3. 투사체(화살) 이동 및 충돌 판정
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                const p = projectiles[i];
+                p.x += p.vx * dt;
+                p.y += p.vy * dt;
+                p.life -= dt;
+
+                let hit = false;
+                for (let j = monsters.length - 1; j >= 0; j--) {
+                    const m = monsters[j];
+                    if (Math.hypot(p.x - m.x, p.y - m.y) <= m.radius + 8) {
+                        damageMonster(m, j, WEAPON_DATA.bow.crit);
+                        hit = true;
+                        break;
+                    }
+                }
+                if (hit || p.life <= 0) projectiles.splice(i, 1);
+            }
+
+            // 4. 몬스터 AI (추적 & 플레이어 공격 -> HP 감소)
+            for (let i = 0; i < monsters.length; i++) {
+                const m = monsters[i];
+                if (m.hitFlash > 0) m.hitFlash -= dt;
+                if (m.attackCooldown > 0) m.attackCooldown -= dt;
+                if (m.aggroTimer > 0) m.aggroTimer -= dt;
+
+                const distToPlayer = Math.hypot(player.x - m.x, player.y - m.y);
+                const playerInTown = distToTown <= TOWN_CENTER.radius;
+                const isAggroed = m.aggroTimer > 0 && distToPlayer < 650; // 활 등에 맞으면 멀리서도 추격
+
+                if (!playerInTown && (distToPlayer < 260 || isAggroed)) {
+                    // 플레이어 추격
+                    const angle = Math.atan2(player.y - m.y, player.x - m.x);
+                    if (distToPlayer > m.radius + player.radius - 2) {
+                        m.x += Math.cos(angle) * m.speed * dt;
+                        m.y += Math.sin(angle) * m.speed * dt;
+                    } else if (m.attackCooldown <= 0) {
+                        // 근접 공격으로 플레이어 HP 차감!
+                        damagePlayer(m.atk, m.name);
+                        m.attackCooldown = 1.1; // 1.1초마다 공격
+                    }
+                } else {
+                    // 원래 스폰 위치로 복귀
+                    const distToSpawn = Math.hypot(m.spawnX - m.x, m.spawnY - m.y);
+                    if (distToSpawn > 10) {
+                        const angle = Math.atan2(m.spawnY - m.y, m.spawnX - m.x);
+                        m.x += Math.cos(angle) * (m.speed * 0.6) * dt;
+                        m.y += Math.sin(angle) * (m.speed * 0.6) * dt;
+                    }
+                }
+            }
+
+            // 5. 이펙트 & 플로팅 텍스트 업데이트
+            for (let i = slashEffects.length - 1; i >= 0; i--) {
+                slashEffects[i].life -= dt;
+                if (slashEffects[i].life <= 0) slashEffects.splice(i, 1);
+            }
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                floatingTexts[i].y -= 32 * dt;
+                floatingTexts[i].life -= dt;
+                if (floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
+            }
+
+            updateHUD();
+        }
+
+        function draw() {
+            const w = canvas.width;
+            const h = canvas.height;
+            const camX = player.x - w / 2;
+            const camY = player.y - h / 2;
+
+            ctx.clearRect(0, 0, w, h);
+            ctx.save();
+            ctx.translate(-camX, -camY);
+
+            // 1. 구역별 오픈월드 지형 배경 렌더링 (1세계 / 2세계 동적 반영)
+            getActiveZones().forEach(z => {
+                ctx.fillStyle = z.bg;
+                ctx.fillRect(z.x1, z.y1, z.x2 - z.x1, z.y2 - z.y1);
+                
+                // 구역 경계선 표시
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.lineWidth = 4;
+                ctx.setLineDash([16, 12]);
+                ctx.strokeRect(z.x1, z.y1, z.x2 - z.x1, z.y2 - z.y1);
+                ctx.setLineDash([]);
+
+                // 구역 중앙 워터마크 텍스트
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+                ctx.font = '900 32px "Noto Sans KR"';
+                ctx.textAlign = 'center';
+                ctx.fillText(z.name, (z.x1 + z.x2) / 2, (z.y1 + z.y2) / 2);
+            });
+
+            // 월드 격자 타일 가이드라인
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.lineWidth = 1;
+            const gridSize = 100;
+            const startX = Math.floor(camX / gridSize) * gridSize;
+            const startY = Math.floor(camY / gridSize) * gridSize;
+            for (let gx = startX; gx < camX + w + gridSize; gx += gridSize) {
+                ctx.beginPath(); ctx.moveTo(gx, camY); ctx.lineTo(gx, camY + h); ctx.stroke();
+            }
+            for (let gy = startY; gy < camY + h + gridSize; gy += gridSize) {
+                ctx.beginPath(); ctx.moveTo(camX, gy); ctx.lineTo(camX + w, gy); ctx.stroke();
+            }
+
+            // 월드 외곽 경계선
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(0, 0, WORLD_SIZE, WORLD_SIZE);
+
+            // 2. 시작의 마을 (안전지대 & 회복의 샘)
+            ctx.beginPath();
+            ctx.arc(TOWN_CENTER.x, TOWN_CENTER.y, TOWN_CENTER.radius, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.16)';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#10b981';
+            ctx.setLineDash([10, 8]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 마을 중앙 치유의 샘물
+            ctx.beginPath();
+            ctx.arc(TOWN_CENTER.x, TOWN_CENTER.y, 48, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+            ctx.fill();
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#a7f3d0';
+            ctx.font = 'bold 14px "Noto Sans KR"';
+            ctx.textAlign = 'center';
+            ctx.fillText(
+                player.world === 2 ? '🏛️ 2세계 천상 성역 (HP 자동 회복)' : '🏡 시작의 마을 (HP 자동 회복)',
+                TOWN_CENTER.x,
+                TOWN_CENTER.y - 62
+            );
+
+            // 2-2. 2세계 이동 차원문 포탈 렌더링 (1세계 Lv.100 이상 개방 / 2세계에서는 1세계 귀환문)
+            if (player.level >= 100 || player.world === 2) {
+                const nowSec = performance.now() / 1000;
+                ctx.save();
+                ctx.translate(PORTAL_POS.x, PORTAL_POS.y);
+                ctx.rotate(nowSec * 2.5);
+                ctx.beginPath();
+                ctx.arc(0, 0, PORTAL_POS.radius, 0, Math.PI * 2);
+                ctx.fillStyle = player.world === 1 ? 'rgba(34, 211, 238, 0.28)' : 'rgba(16, 185, 129, 0.28)';
+                ctx.fill();
+                ctx.lineWidth = 3.5;
+                ctx.strokeStyle = player.world === 1 ? '#22d3ee' : '#34d399';
+                ctx.setLineDash([10, 6]);
+                ctx.stroke();
+                ctx.restore();
+
+                ctx.fillStyle = player.world === 1 ? '#67e8f9' : '#6ee7b7';
+                ctx.font = '900 13px "Noto Sans KR"';
+                ctx.textAlign = 'center';
+                ctx.fillText(
+                    player.world === 1 ? '🌀 2세계 차원문 (클릭/접근)' : '🌍 1세계 귀환문 (클릭/접근)',
+                    PORTAL_POS.x,
+                    PORTAL_POS.y - PORTAL_POS.radius - 10
+                );
+            }
+
+            // 3. 나무 & 바위 오브젝트 렌더링
+            for (const prop of props) {
+                if (prop.x < camX - 60 || prop.x > camX + w + 60 || prop.y < camY - 60 || prop.y > camY + h + 60) continue;
+                ctx.beginPath();
+                ctx.arc(prop.x, prop.y + 6, prop.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0,0,0,0.35)';
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(prop.x, prop.y, prop.radius, 0, Math.PI * 2);
+                ctx.fillStyle = prop.type === 'tree' ? '#166534' : (prop.type === 'crystal' ? '#1e3a8a' : '#475569');
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = prop.type === 'tree' ? '#22c55e' : (prop.type === 'crystal' ? '#38bdf8' : '#94a3b8');
+                ctx.stroke();
+            }
+
+            // 4. 필드 몬스터 렌더링
+            for (const m of monsters) {
+                if (m.x < camX - 80 || m.x > camX + w + 80 || m.y < camY - 80 || m.y > camY + h + 80) continue;
+
+                const isHigherLv = m.lv > player.level + 3;
+
+                // 그림자
+                ctx.beginPath();
+                ctx.ellipse(m.x, m.y + m.radius - 2, m.radius * 0.9, m.radius * 0.4, 0, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0,0,0,0.45)';
+                ctx.fill();
+
+                // 보스 전용 황금 오라 링
+                if (m.isBoss) {
+                    ctx.beginPath();
+                    ctx.arc(m.x, m.y, m.radius + 9, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(250, 204, 21, 0.85)';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+
+                // 본인 레벨 + 3 초과 몬스터는 붉은 경고 오라 표시
+                if (isHigherLv) {
+                    ctx.beginPath();
+                    ctx.arc(m.x, m.y, m.radius + 5, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([4, 4]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                // 몬스터 몸체
+                ctx.beginPath();
+                ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
+                ctx.fillStyle = m.hitFlash > 0 ? '#ffffff' : m.color;
+                ctx.fill();
+                ctx.lineWidth = m.isBoss ? 3.5 : 2.5;
+                ctx.strokeStyle = isHigherLv ? '#ef4444' : (m.isBoss ? '#fef08a' : '#0f172a');
+                ctx.stroke();
+            }
+
+            // 4. 필드 몬스터 렌더링
+            for (const m of monsters) {
+                if (m.x < camX - 80 || m.x > camX + w + 80 || m.y < camY - 80 || m.y > camY + h + 80) continue;
+
+                const isHigherLv = m.lv > player.level + 3;
+
+                // 그림자
+                ctx.beginPath();
+                ctx.ellipse(m.x, m.y + m.radius - 2, m.radius * 0.9, m.radius * 0.4, 0, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0,0,0,0.45)';
+                ctx.fill();
+
+                // 본인 레벨 + 3 초과 몬스터는 붉은 경고 오라 표시
+                if (isHigherLv) {
+                    ctx.beginPath();
+                    ctx.arc(m.x, m.y, m.radius + 5, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([4, 4]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                // 몬스터 몸체
+                ctx.beginPath();
+                ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
+                ctx.fillStyle = m.hitFlash > 0 ? '#ffffff' : m.color;
+                ctx.fill();
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = isHigherLv ? '#ef4444' : '#0f172a';
+                ctx.stroke();
+
+                // 몬스터 눈
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.arc(m.x - m.radius * 0.3, m.y - 2, 3, 0, Math.PI * 2);
+                ctx.arc(m.x + m.radius * 0.3, m.y - 2, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 몬스터 이름 및 체력바 (사냥 불가 레벨은 빨간색 + 🔒 표시)
+                ctx.fillStyle = isHigherLv ? '#fca5a5' : '#f8fafc';
+                ctx.font = 'bold 11px "Noto Sans KR"';
+                ctx.textAlign = 'center';
+                const label = isHigherLv ? `🔒 Lv.${m.lv} ${m.name}` : `Lv.${m.lv} ${m.name}`;
+                ctx.fillText(label, m.x, m.y - m.radius - 14);
+
+                const barW = 46;
+                const hpRatio = Math.max(0, m.hp / m.maxHp);
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(m.x - barW / 2, m.y - m.radius - 10, barW, 5);
+                ctx.fillStyle = isHigherLv ? '#64748b' : '#ef4444';
+                ctx.fillRect(m.x - barW / 2, m.y - m.radius - 10, barW * hpRatio, 5);
+            }
+
+            // 5. 플레이어 렌더링
+            drawPlayer();
+
+            // 6. 검기(베기/회전) 이펙트 & 투사체(화살) 렌더링
+            for (const s of slashEffects) {
+                ctx.save();
+                ctx.translate(s.x, s.y);
+                ctx.globalAlpha = Math.max(0, s.life / s.maxLife) * 0.7;
+                ctx.fillStyle = s.color;
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                if (s.isFullCircle) {
+                    ctx.arc(0, 0, s.radius, 0, Math.PI * 2);
+                } else {
+                    ctx.moveTo(0, 0);
+                    ctx.arc(0, 0, s.radius, s.angle - 1.0, s.angle + 1.0);
+                    ctx.closePath();
+                }
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            for (const p of projectiles) {
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(Math.atan2(p.vy, p.vx));
+                ctx.strokeStyle = p.color;
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(-14, 0);
+                ctx.lineTo(12, 0);
+                ctx.stroke();
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.moveTo(16, 0); ctx.lineTo(8, -4); ctx.lineTo(8, 4);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // 7. 플로팅 데미지 텍스트
+            for (const ft of floatingTexts) {
+                ctx.fillStyle = ft.color;
+                ctx.font = `900 ${ft.size}px "Noto Sans KR"`;
+                ctx.textAlign = 'center';
+                ctx.fillText(ft.text, ft.x, ft.y);
+            }
+
+            ctx.restore();
+
+            // 8. 미니맵 렌더링
+            drawMinimap();
+        }
+
+        function drawPlayer() {
+            const wType = player.currentWeapon;
+            const wLv = player.weapons[wType].level;
+            const tier = getTierInfo(wLv);
+            const nowSec = performance.now() / 1000;
+
+            ctx.save();
+            ctx.translate(player.x, player.y);
+
+            // 강화 단계별 필드 오라 이펙트 (1강 이상)
+            if (wLv >= 1) {
+                ctx.beginPath();
+                ctx.arc(0, 0, player.radius + 7, 0, Math.PI * 2);
+                ctx.fillStyle = tier.auraCore;
+                ctx.fill();
+                ctx.strokeStyle = tier.primary;
+                ctx.lineWidth = wLv >= 18 ? 3.5 : 2;
+                ctx.stroke();
+            }
+
+            // 10강 이상: 회전하는 룬 궤도 링 추가
+            if (wLv >= 10) {
+                ctx.save();
+                ctx.rotate(nowSec * 2.2);
+                ctx.beginPath();
+                ctx.arc(0, 0, player.radius + 14, 0, Math.PI * 2);
+                ctx.strokeStyle = tier.secondary;
+                ctx.lineWidth = 1.6;
+                ctx.setLineDash([7, 7]);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // 14강 이상: 공전하는 쌍 오라 크리스탈/스파크
+            if (wLv >= 14) {
+                for (let k = 0; k < 2; k++) {
+                    const orbAngle = nowSec * 3.6 + k * Math.PI;
+                    const ox = Math.cos(orbAngle) * (player.radius + 18);
+                    const oy = Math.sin(orbAngle) * (player.radius + 18);
+                    ctx.beginPath();
+                    ctx.arc(ox, oy, wLv >= 18 ? 5 : 3.5, 0, Math.PI * 2);
+                    ctx.fillStyle = k === 0 ? tier.primary : '#fbbf24';
+                    ctx.fill();
+                }
+            }
+
+            // 18강 이상: 맥동하는 신화 / 성광 / 무지개 / 공허 외곽 링
+            if (wLv >= 18) {
+                const pulseR = player.radius + (wLv >= 46 ? 26 : 22) + Math.sin(nowSec * 7) * 3;
+                ctx.beginPath();
+                ctx.arc(0, 0, pulseR, 0, Math.PI * 2);
+                ctx.strokeStyle = wLv === 50 ? 'rgba(168, 85, 247, 0.9)' : (wLv >= 46 ? tier.primary : (wLv >= 21 ? 'rgba(248, 250, 252, 0.85)' : 'rgba(251, 191, 36, 0.75)'));
+                ctx.lineWidth = wLv === 50 ? 3 : 2;
+                ctx.setLineDash([4, 6]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // 50강 이상: 공허 / 천상 / 창세 외곽 오라
+            if (wLv >= 50) {
+                ctx.save();
+                ctx.rotate(-nowSec * 3.0);
+                ctx.beginPath();
+                ctx.arc(0, 0, player.radius + (wLv >= 56 ? 35 : 31), 0, Math.PI * 2);
+                ctx.strokeStyle = wLv >= 56 ? 'rgba(251, 191, 36, 0.95)' : (wLv >= 51 ? 'rgba(34, 211, 238, 0.9)' : 'rgba(15, 23, 42, 0.95)');
+                ctx.lineWidth = wLv >= 56 ? 4.5 : 4;
+                ctx.setLineDash([12, 6]);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // 플레이어 몸체 (피격 무적 시 반짝임)
+            ctx.globalAlpha = player.invulnTimer > 0 ? 0.55 : 1.0;
+            ctx.beginPath();
+            ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#38bdf8';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#0f172a';
+            ctx.stroke();
+
+            // 플레이어가 손에 든 무기 렌더링 (강화 단계별 색상 반영!)
+            const swingOffset = player.swingTimer > 0 ? Math.sin(player.swingTimer * 25) * 1.1 : 0;
+            ctx.rotate(player.angle + swingOffset);
+
+            ctx.shadowColor = tier.primary;
+            ctx.shadowBlur = wLv > 0 ? (wLv >= 18 ? 22 : 12) : 0;
+
+            if (wType === 'sword') {
+                ctx.fillStyle = tier.primary;
+                ctx.fillRect(14, -3, 28 + Math.min(8, Math.floor(wLv / 3)), 6);
+                ctx.fillStyle = '#f59e0b';
+                ctx.fillRect(12, -7, 4, 14);
+            } else if (wType === 'bow') {
+                ctx.strokeStyle = tier.primary;
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(12, 0, 16, -Math.PI * 0.45, Math.PI * 0.45);
+                ctx.stroke();
+            } else {
+                // 폴암
+                ctx.strokeStyle = '#92400e';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(-10, 0); ctx.lineTo(36, 0);
+                ctx.stroke();
+                ctx.fillStyle = tier.primary;
+                ctx.beginPath();
+                ctx.moveTo(44, 0); ctx.lineTo(32, -7); ctx.lineTo(32, 7);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        function drawMinimap() {
+            const mw = miniCanvas.width;
+            const mh = miniCanvas.height;
+            const scale = mw / WORLD_SIZE;
+
+            // 미니맵 구역 배경색 표시
+            const activeZones = getActiveZones();
+            for (let i = activeZones.length - 1; i >= 0; i--) {
+                const z = activeZones[i];
+                miniCtx.fillStyle = z.bg;
+                miniCtx.fillRect(z.x1 * scale, z.y1 * scale, (z.x2 - z.x1) * scale, (z.y2 - z.y1) * scale);
+            }
+
+            // 마을 구역
+            miniCtx.beginPath();
+            miniCtx.arc(TOWN_CENTER.x * scale, TOWN_CENTER.y * scale, TOWN_CENTER.radius * scale, 0, Math.PI * 2);
+            miniCtx.fillStyle = 'rgba(16, 185, 129, 0.5)';
+            miniCtx.fill();
+
+            // 몬스터 점 (보스: 빨강/큰 점, 사냥 가능: 노랑, Lv+3 초과: 회색)
+            for (const m of monsters) {
+                if (m.isBoss) {
+                    miniCtx.fillStyle = '#f43f5e';
+                    miniCtx.fillRect(m.x * scale - 2.2, m.y * scale - 2.2, 4.4, 4.4);
+                } else {
+                    miniCtx.fillStyle = m.lv > player.level + 3 ? '#64748b' : '#fbbf24';
+                    miniCtx.fillRect(m.x * scale - 1.2, m.y * scale - 1.2, 2.4, 2.4);
+                }
+            }
+
+            // 플레이어 점
+            miniCtx.fillStyle = '#38bdf8';
+            miniCtx.beginPath();
+            miniCtx.arc(player.x * scale, player.y * scale, 3.5, 0, Math.PI * 2);
+            miniCtx.fill();
+        }
+
+        function updateHUD() {
+            document.getElementById('hud-lv').innerText = player.level;
+            document.getElementById('hud-gold').innerText = player.gold.toLocaleString();
+            document.getElementById('hud-hp').innerText = Math.ceil(player.hp);
+            document.getElementById('hud-max-hp').innerText = player.maxHp;
+            document.getElementById('hud-hp-bar').style.width = `${(player.hp / player.maxHp) * 100}%`;
+
+            document.getElementById('hud-exp').innerText = player.exp;
+            document.getElementById('hud-max-exp').innerText = player.maxExp;
+            document.getElementById('hud-exp-bar').style.width = `${(player.exp / player.maxExp) * 100}%`;
+
+            const zone = getZoneAt(player.x, player.y);
+            const zoneEl = document.getElementById('hud-zone');
+            zoneEl.innerText = zone.name;
+            zoneEl.className = `text-xs sm:text-sm font-bold ${zone.color}`;
+
+            const worldBadge = document.getElementById('hud-world-badge');
+            const portalBtn = document.getElementById('hud-portal-btn');
+            if (player.world === 2) {
+                worldBadge.innerText = '🌀 2세계 (천상·차원계)';
+                worldBadge.className = 'font-black text-cyan-300';
+                portalBtn.innerText = '🌍 1세계 귀환';
+                portalBtn.classList.remove('hidden');
+            } else {
+                worldBadge.innerText = player.level >= 100 ? '🌍 1세계 (2세계 개방됨!)' : '🌍 1세계 (현세)';
+                worldBadge.className = 'font-black text-emerald-400';
+                if (player.level >= 100) {
+                    portalBtn.innerText = '🌀 2세계 입장';
+                    portalBtn.classList.remove('hidden');
+                } else {
+                    portalBtn.classList.add('hidden');
+                }
+            }
+
+            const wType = player.currentWeapon;
+            const wLv = player.weapons[wType].level;
+            const tier = getTierInfo(wLv);
+            const wNameEl = document.getElementById('hud-weapon-name');
+            wNameEl.innerText = `+${wLv} ${getWeaponDisplayName(wType, wLv)}`;
+            wNameEl.style.color = tier.primary;
+
+            document.getElementById('hud-atk').innerText = getTotalAtk().toLocaleString();
+            document.getElementById('hud-potion-btn-count').innerText = `${player.potions}개`;
+            document.getElementById('action-potion-count').innerText = `${player.potions}개 (Q)`;
+        }
+
+        /* ==========================================================================
+           6. 입력 이벤트 바인딩 및 창 크기 조절
+           ========================================================================== */
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // 한/영 전환 및 대소문자 무관하게 물리적 키 코드(KeyW, KeyA, KeyS, KeyD)로 이동 처리
+        function setMoveKey(e, isPressed) {
+            const code = e.code;
+            const k = e.key.toLowerCase();
+
+            if (code === 'KeyW' || k === 'w' || k === 'ㅈ' || e.key === 'ArrowUp') keys.w = isPressed;
+            if (code === 'KeyA' || k === 'a' || k === 'ㅁ' || e.key === 'ArrowLeft') keys.a = isPressed;
+            if (code === 'KeyS' || k === 's' || k === 'ㄴ' || e.key === 'ArrowDown') keys.s = isPressed;
+            if (code === 'KeyD' || k === 'd' || k === 'ㅇ' || e.key === 'ArrowRight') keys.d = isPressed;
+        }
+
+        window.addEventListener('keydown', (e) => {
+            // 입력창(input, textarea)에 포커스가 있을 때는 게임 단축키를 차단하여 띄어쓰기/문자 입력을 보장
+            const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+            if (activeTag === 'input' || activeTag === 'textarea') {
+                return;
+            }
+
+            setMoveKey(e, true);
+
+            if (e.code === 'Space') {
+                e.preventDefault();
+                playerAttack();
+            } else if (e.code === 'KeyQ' || e.key.toLowerCase() === 'q' || e.key === 'ㅂ') {
+                usePotion();
+            } else if (e.code === 'KeyE' || e.key.toLowerCase() === 'e' || e.key === 'ㄷ') {
+                const modal = document.getElementById('forge-modal');
+                modal.classList.contains('hidden') ? openForgeModal() : closeForgeModal();
+            } else if (e.code === 'KeyT' || e.key.toLowerCase() === 't' || e.key === 'ㅅ') {
+                const modal = document.getElementById('stat-modal');
+                modal.classList.contains('hidden') ? openStatModal() : closeStatModal();
+            } else if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
+                // 비밀 코드 'devmode' 입력 감지
+                secretCodeBuffer = (secretCodeBuffer + e.key.toLowerCase()).slice(-12);
+                if (secretCodeBuffer.endsWith('devmode')) {
+                    secretCodeBuffer = '';
+                    openDevModal();
+                    showToast('🔓 비밀 개발자 모드가 해금되었습니다!', 'bg-fuchsia-950/95 border-fuchsia-400 text-fuchsia-200');
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            setMoveKey(e, false);
+        });
+
+        // 창 포커스를 잃었을 때 키가 눌린 상태로 고정되는 현상 방지
+        window.addEventListener('blur', () => {
+            keys.w = keys.a = keys.s = keys.d = false;
+            keys.ArrowUp = keys.ArrowDown = keys.ArrowLeft = keys.ArrowRight = false;
+        });
+
+        // 마우스 클릭: 월드 좌표 변환 후 마을 치유의 샘 5연타 비밀 진입 체크 및 공격
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            const camX = player.x - canvas.width / 2;
+            const camY = player.y - canvas.height / 2;
+            const worldX = camX + mx;
+            const worldY = camY + my;
+
+            // 2세계 차원문 포탈 클릭 시 차원 이동
+            if ((player.level >= 100 || player.world === 2) && Math.hypot(worldX - PORTAL_POS.x, worldY - PORTAL_POS.y) <= PORTAL_POS.radius + 12) {
+                interactPortal();
+                return;
+            }
+
+            // 마을 중앙 치유의 샘물(반경 55px)을 1.5초 내에 5번 클릭하면 비밀 개발자 콘솔 오픈
+            if (Math.hypot(worldX - TOWN_CENTER.x, worldY - TOWN_CENTER.y) <= 55) {
+                const now = performance.now();
+                if (now - lastFountainClickTime < 1500) {
+                    secretFountainClicks += 1;
+                } else {
+                    secretFountainClicks = 1;
+                }
+                lastFountainClickTime = now;
+
+                if (secretFountainClicks >= 5) {
+                    secretFountainClicks = 0;
+                    openDevModal();
+                    showToast('⛲ 치유의 샘의 비밀이 열렸습니다!', 'bg-fuchsia-950/95 border-fuchsia-400 text-fuchsia-200');
+                    return;
+                }
+            }
+
+            player.angle = Math.atan2(my - canvas.height / 2, mx - canvas.width / 2);
+            playerAttack();
+        });
+
+        // 모바일 터치 방향키 바인딩
+        function bindTouchBtn(btnId, keyName) {
+            const btn = document.getElementById(btnId);
+            const start = (e) => { e.preventDefault(); keys[keyName] = true; };
+            const end = (e) => { e.preventDefault(); keys[keyName] = false; };
+            btn.addEventListener('mousedown', start);
+            btn.addEventListener('mouseup', end);
+            btn.addEventListener('mouseleave', end);
+            btn.addEventListener('touchstart', start);
+            btn.addEventListener('touchend', end);
+        }
+        bindTouchBtn('btn-up', 'w');
+        bindTouchBtn('btn-down', 's');
+        bindTouchBtn('btn-left', 'a');
+        bindTouchBtn('btn-right', 'd');
+
+        // 메인 애니메이션 루프
+        let lastTime = performance.now();
+        function gameLoop(now) {
+            const dt = Math.min(0.05, (now - lastTime) / 1000);
+            lastTime = now;
+            update(dt);
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.onload = () => {
+            resizeCanvas();
+            renderProbTable();
+            updateGameSettingsUI();
+            initWorld();
+            updateHUD();
+            requestAnimationFrame(gameLoop);
+        };
+    </script>
+</body>
+</html>
